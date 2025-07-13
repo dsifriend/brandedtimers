@@ -16,7 +16,8 @@ interface FontMetrics {
 
 export function useFontMetrics(
   totalMilliseconds: number,
-  hasActiveEdit: boolean
+  showHours: boolean,
+  currentHours: number = 0
 ) {
   const [metrics, setMetrics] = useState<FontMetrics>({
     fontSize: 48,
@@ -29,27 +30,37 @@ export function useFontMetrics(
 
   const calculateFontSize = useCallback(() => {
     const { width, height } = Dimensions.get("window");
-    const availableWidth = width - timerConfig.spacing.containerPadding * 2;
-    const availableHeight = height * 0.4;
+    const availableWidth = width - 20; // Minimal padding
+    const availableHeight = height * 0.6; // Use more vertical space
 
-    // Determine character count based on duration
+    // Calculate actual character count based on real values
     const totalSeconds = Math.floor(deferredMilliseconds / 1000);
-    const hasHours = totalSeconds >= 3600 || hasActiveEdit;
-    const charCount = hasHours ? 8 : 5; // "HH:MM:SS" or "MM:SS"
-    const separatorCount = hasHours ? 2 : 1;
-    const separatorWidth =
-      timerConfig.spacing.separatorSpacing * 2 * separatorCount;
+    const hours = Math.floor(totalSeconds / 3600);
 
-    const availableForText = availableWidth - separatorWidth;
-    const baseCharWidth = availableForText / charCount;
+    // Determine actual digit counts
+    const hasHours = hours > 0 || showHours;
+    const hourDigits = hasHours ? Math.max(2, hours.toString().length) : 0;
+    const charCount = hourDigits + 2 + 2; // +2 for minutes, seconds
+
+    // Add separator count
+    const separatorCount = hasHours ? 2 : 1;
+
+    // Calculate available width accounting for separator margins only first
+    const separatorMargins =
+      timerConfig.spacing.separatorSpacing * separatorCount;
+    const availableForTextAndSeparators = availableWidth - separatorMargins;
+
+    // Total character count including separators
+    const totalCharCount = charCount + separatorCount; // Each ":" counts as one character
+    const baseCharWidth = availableForTextAndSeparators / totalCharCount;
 
     // Use a reasonable character width ratio
     const maxFontSizeByWidth = Math.floor(
       baseCharWidth / timerConfig.layout.characterWidthRatio
     );
-    const maxFontSizeByHeight = Math.floor(availableHeight * 0.8);
+    const maxFontSizeByHeight = Math.floor(availableHeight * 0.9);
 
-    const newFontSize = Math.min(maxFontSizeByWidth, maxFontSizeByHeight);
+    const newFontSize = Math.min(maxFontSizeByWidth, maxFontSizeByHeight, 300); // Cap at 300
     const clampedFontSize = Math.max(24, newFontSize);
 
     setMetrics((prev) => ({
@@ -58,7 +69,7 @@ export function useFontMetrics(
       digitWidth: clampedFontSize * timerConfig.layout.characterWidthRatio,
       isReady: true,
     }));
-  }, [deferredMilliseconds, hasActiveEdit]);
+  }, [deferredMilliseconds, showHours, currentHours]);
 
   useEffect(() => {
     calculateFontSize();

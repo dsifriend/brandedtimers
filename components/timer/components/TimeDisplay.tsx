@@ -11,11 +11,20 @@ import { TimeSeparator } from './TimeSeparator';
 export function TimeDisplay() {
   const { state, millisecondsToSegments } = useTimer();
   const { editingSegment } = useSegmentEditing();
-  const metrics = useFontMetrics(state.totalMilliseconds, editingSegment === 'hours');
   const [blinkVisible, setBlinkVisible] = useState(true);
 
   // Use the animation hook
   useTimerAnimation();
+
+  const segments = millisecondsToSegments(state.totalMilliseconds);
+  const showHours = segments.hours > 0 || editingSegment === 'hours';
+
+  // Pass actual hour value for dynamic sizing
+  const metrics = useFontMetrics(
+    state.totalMilliseconds,
+    showHours,
+    segments.hours
+  );
 
   // Blink effect for separators
   useEffect(() => {
@@ -30,9 +39,6 @@ export function TimeDisplay() {
 
     return () => clearInterval(interval);
   }, [state.status]);
-
-  const segments = millisecondsToSegments(state.totalMilliseconds);
-  const showHours = segments.hours > 0 || editingSegment === 'hours';
 
   return (
     <View style={timerStyles.timeDisplay}>

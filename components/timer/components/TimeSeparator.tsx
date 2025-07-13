@@ -17,7 +17,7 @@ export const TimeSeparator = memo(function TimeSeparator({
         timerStyles.separatorContainer,
         {
           height: fontSize,
-          marginHorizontal: timerConfig.spacing.separatorSpacing,
+          marginHorizontal: timerConfig.spacing.separatorSpacing / 2,
         }
       ]}
     >
