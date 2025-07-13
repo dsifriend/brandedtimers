@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Text, TextInput, TouchableOpacity } from 'react-native';
+import { Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { timerStyles } from '../../../styles/timer.styles';
 import { useSegmentEditing } from '../hooks/useSegmentEditing';
 
@@ -30,26 +30,46 @@ export const TimeSegment = memo(function TimeSegment({
     const inputWidth = digitWidth * Math.max(2, editingValue.length);
 
     return (
-      <TextInput
-        style={[
-          timerStyles.timeSegmentInput,
-          {
-            fontSize,
-            width: inputWidth,
-            lineHeight: fontSize,
-          }
-        ]}
-        value={editingValue}
-        placeholder="00"
-        placeholderTextColor="rgba(255, 255, 255, 0.5)"
-        onChangeText={handleSegmentChange}
-        onBlur={handleSegmentSubmit}
-        onSubmitEditing={handleSegmentSubmit}
-        keyboardType="number-pad"
-        selectTextOnFocus
-        autoFocus
-        returnKeyType="done"
-      />
+      <View
+        style={{
+          flexDirection: 'row',
+          height: fontSize,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <TextInput
+          style={[
+            timerStyles.timeSegmentInput,
+            {
+              fontSize,
+              width: inputWidth,
+              height: fontSize,
+              lineHeight: fontSize,
+              padding: 0,
+              margin: 0,
+              paddingVertical: 0,
+              paddingHorizontal: 4,
+              textAlignVertical: 'center',
+              ...(Platform.OS === 'android' && {
+                paddingTop: 0,
+                paddingBottom: 0,
+              }),
+            }
+          ]}
+          value={editingValue}
+          placeholder="00"
+          placeholderTextColor="rgba(255, 255, 255, 0.5)"
+          onChangeText={handleSegmentChange}
+          onBlur={handleSegmentSubmit}
+          onSubmitEditing={handleSegmentSubmit}
+          keyboardType="number-pad"
+          selectTextOnFocus
+          autoFocus
+          returnKeyType="done"
+          underlineColorAndroid="transparent"
+        />
+      </View>
     );
   }
 
