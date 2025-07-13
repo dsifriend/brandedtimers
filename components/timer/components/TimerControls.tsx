@@ -30,7 +30,7 @@ export const TimerControls = memo(function TimerControls() {
   };
 
   const getStopResetIcon = () => {
-    return state.status === 'running' ? 'stop' : 'close';
+    return state.status === 'running' ? 'stop' : 'arrow-undo';
   };
 
   const canStart = state.status === 'stopped' && state.totalMilliseconds > 0;
