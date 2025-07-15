@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useCallback } from 'react';
-import { View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { LayoutChangeEvent, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   clamp,
@@ -16,17 +16,22 @@ interface HueSliderProps {
   onValueChange: (hue: number) => void;
   width?: number;
   height?: number;
+  style?: any; // Allow flexible styling
 }
 
 export function HueSlider({
   value,
   onValueChange,
-  width = 280,
-  height = 40
+  width,
+  height = 40,
+  style
 }: HueSliderProps) {
-  const translateX = useSharedValue((value / 360) * width);
+  const [containerWidth, setContainerWidth] = useState(width || 280);
+  const effectiveWidth = width || containerWidth;
+
+  const translateX = useSharedValue((value / 360) * (effectiveWidth - height));
   const thumbRadius = height / 2;
-  const trackWidth = width - height; // Account for thumb size
+  const trackWidth = effectiveWidth - height; // Account for thumb size
 
   const updateHue = useCallback((newHue: number) => {
     onValueChange(Math.round(newHue));
@@ -60,10 +65,18 @@ export function HueSlider({
 
   const composedGesture = Gesture.Simultaneous(panGesture, tapGesture);
 
-  // Update thumb position when value changes externally
+  // Update thumb position when value or width changes
   React.useEffect(() => {
     translateX.value = withSpring((value / 360) * trackWidth);
   }, [value, trackWidth, translateX]);
+
+  // Handle dynamic width measurement
+  const handleLayout = useCallback((event: LayoutChangeEvent) => {
+    if (!width) { // Only measure if width wasn't provided
+      const { width: measuredWidth } = event.nativeEvent.layout;
+      setContainerWidth(measuredWidth);
+    }
+  }, [width]);
 
   const thumbStyle = useAnimatedStyle(() => {
     return {
@@ -90,7 +103,18 @@ export function HueSlider({
 
   return (
     <GestureDetector gesture={composedGesture}>
-      <View style={{ width, height, justifyContent: 'center' }}>
+      <View
+        style={[
+          {
+            width: width,
+            height,
+            justifyContent: 'center',
+            flex: width ? 0 : 1, // Flex when no width specified
+          },
+          style
+        ]}
+        onLayout={handleLayout}
+      >
         {/* Gradient Track */}
         <LinearGradient
           colors={gradientColors}
