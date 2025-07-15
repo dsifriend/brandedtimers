@@ -138,29 +138,22 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
         <View style={{
           flexDirection: 'row',
           alignItems: 'center',
-          marginBottom: 16,
+          gap: 16,
         }}>
           <View style={{
             width: 40,
             height: 40,
             borderRadius: 20,
             backgroundColor: state.colors.primary,
-            marginRight: 16,
             borderWidth: 2,
             borderColor: state.colors.textSecondary,
           }} />
-          <Text style={{
-            fontSize: 14,
-            color: state.colors.textSecondary,
-          }}>
-            Hue: {state.primaryHue}°
-          </Text>
+          <HueSlider
+            value={state.primaryHue}
+            onValueChange={setPrimaryHue}
+            style={{ flex: 1 }}
+          />
         </View>
-        <HueSlider
-          value={state.primaryHue}
-          onValueChange={setPrimaryHue}
-          width={Math.min(280, width - 80)}
-        />
       </View>
 
       {/* Secondary Color */}
@@ -176,29 +169,22 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
         <View style={{
           flexDirection: 'row',
           alignItems: 'center',
-          marginBottom: 16,
+          gap: 16,
         }}>
           <View style={{
             width: 40,
             height: 40,
             borderRadius: 20,
             backgroundColor: state.colors.accent,
-            marginRight: 16,
             borderWidth: 2,
             borderColor: state.colors.textSecondary,
           }} />
-          <Text style={{
-            fontSize: 14,
-            color: state.colors.textSecondary,
-          }}>
-            Hue: {state.secondaryHue}°
-          </Text>
+          <HueSlider
+            value={state.secondaryHue}
+            onValueChange={setSecondaryHue}
+            style={{ flex: 1 }}
+          />
         </View>
-        <HueSlider
-          value={state.secondaryHue}
-          onValueChange={setSecondaryHue}
-          width={Math.min(280, width - 80)}
-        />
       </View>
     </View>
   );
