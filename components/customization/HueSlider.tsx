@@ -67,7 +67,7 @@ export function HueSlider({
 
   const thumbStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateX: translateX.value }],
+      transform: [{ translateX: translateX.value - thumbRadius }],
     };
   });
 
