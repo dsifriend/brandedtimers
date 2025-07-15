@@ -165,8 +165,8 @@ export const ColorPresets = {
     surfaceSecondary: (hue: number) => oklch(0.35, 0.04, hue),
 
     // Accents - vibrant colors for buttons/highlights
-    accentPrimary: (hue: number) => oklch(0.85, 0.18, hue), // Bright and vibrant
-    accentSecondary: (hue: number) => oklch(0.65, 0.16, hue), // Medium-bright, very saturated
+    accentPrimary: (hue: number) => oklch(0.75, 0.18, hue), // Bright and vibrant
+    accentSecondary: (hue: number) => oklch(0.55, 0.16, hue), // Medium-bright, very saturated
 
     // Text colors - prominent white text
     textPrimary: (hue: number) => oklch(0.95, 0.01, hue),
@@ -185,8 +185,8 @@ export const ColorPresets = {
     surfaceSecondary: (hue: number) => oklch(0.88, 0.02, hue), // Slightly tinted
 
     // Accents - SAME as dark theme for consistency
-    accentPrimary: (hue: number) => oklch(0.85, 0.18, hue), // Exact same as dark
-    accentSecondary: (hue: number) => oklch(0.65, 0.16, hue), // Exact same as dark
+    accentPrimary: (hue: number) => oklch(0.75, 0.18, hue), // Bright and vibrant
+    accentSecondary: (hue: number) => oklch(0.55, 0.16, hue), // Medium-bright, very saturated
 
     // Text colors - now these are the COLORED elements (digits, etc.)
     textPrimary: (hue: number) => oklch(0.25, 0.12, hue), // Dark, saturated colored text
