@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { timerStyles } from '../../../styles/timer.styles';
+import { useCustomization } from '../../customization/context/CustomizationContext';
 import { useSegmentEditing } from '../hooks/useSegmentEditing';
 
 interface TimeSegmentProps {
@@ -24,6 +24,8 @@ export const TimeSegment = memo(function TimeSegment({
     handleSegmentSubmit
   } = useSegmentEditing();
 
+  const { state: customState } = useCustomization();
+
   const isEditing = editingSegment === segment;
 
   if (isEditing) {
@@ -39,27 +41,30 @@ export const TimeSegment = memo(function TimeSegment({
         }}
       >
         <TextInput
-          style={[
-            timerStyles.timeSegmentInput,
-            {
-              fontSize,
-              width: inputWidth,
-              height: fontSize,
-              lineHeight: fontSize,
-              padding: 0,
-              margin: 0,
-              paddingVertical: 0,
-              paddingHorizontal: 4,
-              textAlignVertical: 'center',
-              ...(Platform.OS === 'android' && {
-                paddingTop: 0,
-                paddingBottom: 0,
-              }),
-            }
-          ]}
+          style={{
+            color: customState.colors.text, // This will be colored in light mode, white in dark mode
+            fontFamily: 'Inter_400Regular',
+            textAlign: 'center',
+            includeFontPadding: false,
+            borderRadius: 4,
+            paddingHorizontal: 4,
+            minWidth: 0,
+            fontSize,
+            width: inputWidth,
+            height: fontSize,
+            lineHeight: fontSize,
+            padding: 0,
+            margin: 0,
+            paddingVertical: 0,
+            textAlignVertical: 'center',
+            ...(Platform.OS === 'android' && {
+              paddingTop: 0,
+              paddingBottom: 0,
+            }),
+          }}
           value={editingValue}
           placeholder="00"
-          placeholderTextColor="rgba(255, 255, 255, 0.5)"
+          placeholderTextColor={customState.colors.textSecondary}
           onChangeText={handleSegmentChange}
           onBlur={handleSegmentSubmit}
           onSubmitEditing={handleSegmentSubmit}
@@ -88,14 +93,15 @@ export const TimeSegment = memo(function TimeSegment({
       {digits.map((digit, index) => (
         <Text
           key={index}
-          style={[
-            timerStyles.timeSegment,
-            {
-              fontSize,
-              width: digitWidth,
-              lineHeight: fontSize,
-            }
-          ]}
+          style={{
+            color: customState.colors.text, // Colored text in light mode, white in dark mode
+            fontFamily: 'Inter_400Regular',
+            textAlign: 'center',
+            includeFontPadding: false,
+            fontSize,
+            width: digitWidth,
+            lineHeight: fontSize,
+          }}
         >
           {digit}
         </Text>

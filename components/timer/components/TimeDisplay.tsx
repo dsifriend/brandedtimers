@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { timerStyles } from '../../../styles/timer.styles';
 import { useTimer } from '../context/TimerContext';
 import { useFontMetrics } from '../hooks/useFontMetrics';
 import { useSegmentEditing } from '../hooks/useSegmentEditing';
@@ -41,7 +40,10 @@ export function TimeDisplay() {
   }, [state.status]);
 
   return (
-    <View style={timerStyles.timeDisplay}>
+    <View style={{
+      flexDirection: 'row',
+      justifyContent: 'center',
+    }}>
       {showHours && (
         <>
           <TimeSegment
