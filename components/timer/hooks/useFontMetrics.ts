@@ -60,7 +60,7 @@ export function useFontMetrics(
     );
     const maxFontSizeByHeight = Math.floor(availableHeight * 0.9);
 
-    const newFontSize = Math.min(maxFontSizeByWidth, maxFontSizeByHeight, 300); // Cap at 300
+    const newFontSize = Math.min(maxFontSizeByWidth, maxFontSizeByHeight, 500); // Cap at 500
     const clampedFontSize = Math.max(24, newFontSize);
 
     setMetrics((prev) => ({
