@@ -78,6 +78,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
     <View style={{
       flex: 1,
       padding: 20,
+      marginLeft: useBottomSheet ? 0 : insets.left,
       backgroundColor: state.colors.background,
     }}>
       {/* Header */}

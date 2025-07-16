@@ -34,12 +34,12 @@ export function FloatingCustomizeButton({ onPress }: FloatingCustomizeButtonProp
 
   const positionStyle = useBottomPosition
     ? {
-      bottom: insets.bottom + 20,
+      bottom: Math.max(insets.bottom, 20), // Ensure minimum 20px from edge
       left: width / 2 - 28, // Center horizontally
     }
     : {
-      top: insets.top + 20,
-      left: 20,
+      top: Math.max(insets.top, 20), // Ensure minimum 20px from edge
+      left: Math.max(insets.left, 20), // Respect left safe area
     };
 
   return (
