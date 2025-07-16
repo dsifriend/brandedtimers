@@ -45,23 +45,16 @@ export const TimeSegment = memo(function TimeSegment({
             color: customState.colors.text, // This will be colored in light mode, white in dark mode
             fontFamily: 'Inter_400Regular',
             textAlign: 'center',
-            includeFontPadding: false,
-            borderRadius: 4,
-            paddingHorizontal: 4,
             minWidth: 0,
+            maxWidth: inputWidth + 8,
             fontSize,
-            width: inputWidth,
-            height: fontSize,
-            lineHeight: fontSize,
-            padding: 0,
-            margin: 0,
-            paddingVertical: 0,
             textAlignVertical: 'center',
             ...(Platform.OS === 'android' && {
               paddingTop: 0,
               paddingBottom: 0,
             }),
           }}
+          caretHidden={false}
           value={editingValue}
           placeholder="00"
           placeholderTextColor={customState.colors.textSecondary}
@@ -88,7 +81,10 @@ export const TimeSegment = memo(function TimeSegment({
     <TouchableOpacity
       onPress={() => handleSegmentPress(segment)}
       disabled={editingSegment !== null}
-      style={{ flexDirection: 'row' }}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}
     >
       {digits.map((digit, index) => (
         <Text
@@ -100,7 +96,6 @@ export const TimeSegment = memo(function TimeSegment({
             includeFontPadding: false,
             fontSize,
             width: digitWidth,
-            lineHeight: fontSize,
           }}
         >
           {digit}

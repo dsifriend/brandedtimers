@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 import { useCustomization } from '../../customization/context/CustomizationContext';
 
 interface TimeSeparatorProps {
@@ -12,30 +12,17 @@ export const TimeSeparator = memo(function TimeSeparator({
   fontSize
 }: TimeSeparatorProps) {
   const { state: customState } = useCustomization();
-
   return (
-    <View
+    <Text
       style={{
-        height: fontSize,
-        marginHorizontal: 4, // separatorSpacing / 2
-        justifyContent: 'center',
-        alignItems: 'center',
+        color: customState.colors.text,
+        verticalAlign: 'middle',
+        fontFamily: 'Inter_400Regular',
+        fontSize,
+        opacity: visible ? 1 : 0,
       }}
     >
-      <Text
-        style={{
-          color: customState.colors.text, // Colored separators in light mode, white in dark mode
-          fontFamily: 'Inter_400Regular',
-          includeFontPadding: false,
-          textAlign: 'center',
-          fontSize,
-          opacity: visible ? 1 : 0,
-          lineHeight: fontSize,
-          transform: [{ translateY: -fontSize * 0.05 }],
-        }}
-      >
-        :
-      </Text>
-    </View>
+      ∶
+    </Text>
   );
 });

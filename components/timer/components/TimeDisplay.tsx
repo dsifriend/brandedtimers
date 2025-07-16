@@ -42,7 +42,7 @@ export function TimeDisplay() {
   return (
     <View style={{
       flexDirection: 'row',
-      justifyContent: 'center',
+      alignItems: 'center', // Ensure all elements align on the same baseline
     }}>
       {showHours && (
         <>
