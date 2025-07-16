@@ -4,7 +4,7 @@ import React, { useCallback, useMemo, useRef } from 'react';
 import { Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useCustomization } from '../customization/context/CustomizationContext';
+import { useCustomization } from './context/CustomizationContext';
 import { HueSlider } from './HueSlider';
 
 interface CustomizationPanelProps {
@@ -24,9 +24,23 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['50%', '75%'], []);
 
-  // Sidebar animation
+  // Sidebar animation - initialize properly based on layout
   const sidebarTranslateX = useSharedValue(useBottomSheet ? 0 : -320);
 
+  // Initialize proper state on mount
+  React.useEffect(() => {
+    if (useBottomSheet) {
+      // Force close bottom sheet on mount if not visible
+      if (!isVisible && bottomSheetRef.current) {
+        bottomSheetRef.current.close();
+      }
+    } else {
+      // Ensure sidebar starts in correct position
+      sidebarTranslateX.value = isVisible ? 0 : -320;
+    }
+  }, []); // Run once on mount
+
+  // Handle visibility changes
   React.useEffect(() => {
     if (useBottomSheet) {
       if (isVisible) {
@@ -41,6 +55,14 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
       });
     }
   }, [isVisible, useBottomSheet, sidebarTranslateX]);
+
+  // Update sidebar position when layout changes
+  React.useEffect(() => {
+    if (!useBottomSheet) {
+      // Reset sidebar position when switching to desktop mode
+      sidebarTranslateX.value = isVisible ? 0 : -320;
+    }
+  }, [useBottomSheet, isVisible, sidebarTranslateX]);
 
   const sidebarStyle = useAnimatedStyle(() => {
     return {
@@ -194,6 +216,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
       <BottomSheet
         ref={bottomSheetRef}
         snapPoints={snapPoints}
+        index={-1} // Start closed
         enablePanDownToClose
         onClose={onClose}
         backgroundStyle={{ backgroundColor: state.colors.background }}
