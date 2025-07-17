@@ -44,14 +44,13 @@ export const TimerControls = memo(function TimerControls() {
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
-      padding: 20,
       gap: 20,
     }}>
       <TouchableOpacity
         style={{
           backgroundColor: canStopReset ? customState.colors.secondary : customState.colors.primary,
           borderRadius: 50,
-          padding: 20,
+          padding: 16,
           justifyContent: 'center',
           alignItems: 'center',
           opacity: canStopReset ? 1 : 0.5,
@@ -61,7 +60,7 @@ export const TimerControls = memo(function TimerControls() {
       >
         <Ionicons
           name={getStopResetIcon()}
-          size={32}
+          size={24}
           color={customState.colorScheme === 'dark' ? customState.colors.text : customState.colors.background}
         />
       </TouchableOpacity>
@@ -70,7 +69,7 @@ export const TimerControls = memo(function TimerControls() {
         style={{
           backgroundColor: (canStart || canPause || canResume) ? customState.colors.accent : customState.colors.secondary,
           borderRadius: 50,
-          padding: 20,
+          padding: 16,
           justifyContent: 'center',
           alignItems: 'center',
           opacity: (canStart || canPause || canResume) ? 1 : 0.5,
@@ -80,7 +79,7 @@ export const TimerControls = memo(function TimerControls() {
       >
         <Ionicons
           name={getStartPauseIcon()}
-          size={32}
+          size={24}
           color={customState.colorScheme === 'dark' ? customState.colors.text : customState.colors.background}
         />
       </TouchableOpacity>

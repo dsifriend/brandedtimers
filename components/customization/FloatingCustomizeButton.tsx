@@ -18,8 +18,7 @@ export function FloatingCustomizeButton({ onPress }: FloatingCustomizeButtonProp
 
   const baseStyle = {
     position: 'absolute' as const,
-    width: 56,
-    height: 56,
+    padding: 12,
     borderRadius: 28,
     backgroundColor: state.colors.primary,
     justifyContent: 'center' as const,
