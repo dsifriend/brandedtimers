@@ -20,9 +20,10 @@ export const TimeSeparator = memo(function TimeSeparator({
         fontFamily: 'Inter_400Regular',
         fontSize,
         opacity: visible ? 1 : 0,
+        transform: [{ translateY: -fontSize * 0.0625 }]
       }}
     >
-      ∶
+      :
     </Text>
   );
 });
