@@ -6,7 +6,6 @@ import { CustomizationProvider, useCustomization } from '../customization/contex
 import { CustomizationPanel } from '../customization/CustomizationPanel';
 import { FloatingCustomizeButton } from '../customization/FloatingCustomizeButton';
 import { TimeDisplay } from './components/TimeDisplay';
-import { TimerControls } from './components/TimerControls';
 import { TimerProvider } from './context/TimerContext';
 
 function TimerContent() {
@@ -43,7 +42,6 @@ function TimerContent() {
             width: '100%',
           }}>
             <TimeDisplay />
-            <TimerControls />
           </View>
         </View>
       </View>
