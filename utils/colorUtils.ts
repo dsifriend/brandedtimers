@@ -56,7 +56,7 @@ export function oklchToHsl(color: OKLCHColor): string {
   } catch (error) {
     console.warn("Failed to convert OKLCH to HSL:", error);
     // Fallback to a reasonable default
-    return color.lightness > 0.5 ? "#ffffff" : "#000000";
+    return color.lightness > 0.65 ? "#ffffff" : "#000000";
   }
 }
 
@@ -83,7 +83,7 @@ export function oklchToRgb(color: OKLCHColor): string {
     }
   } catch (error) {
     console.warn("Failed to convert OKLCH to RGB:", error);
-    return color.lightness > 0.5 ? "#ffffff" : "#000000";
+    return color.lightness > 0.65 ? "#ffffff" : "#000000";
   }
 }
 
@@ -101,7 +101,7 @@ export function oklchToHex(color: OKLCHColor): string {
     return colorObj.to("srgb").toString({ format: "hex" });
   } catch (error) {
     console.warn("Failed to convert OKLCH to hex:", error);
-    return color.lightness > 0.5 ? "#ffffff" : "#000000";
+    return color.lightness > 0.65 ? "#ffffff" : "#000000";
   }
 }
 
@@ -156,42 +156,42 @@ export function meetsContrastRequirement(
 export const ColorPresets = {
   // Dark theme colors
   dark: {
-    // Backgrounds - designed for 7:1 contrast with white text
-    backgroundPrimary: (hue: number) => oklch(0.15, 0.08, hue),
-    backgroundSecondary: (hue: number) => oklch(0.08, 0.02, hue),
+    // Backgrounds - designed for high contrast
+    backgroundPrimary: (hue: number) => oklch(0.2, 0.03, hue),
+    backgroundSecondary: (hue: number) => oklch(0.35, 0.04, hue),
 
     // Surfaces - medium contrast
-    surfacePrimary: (hue: number) => oklch(0.25, 0.06, hue),
-    surfaceSecondary: (hue: number) => oklch(0.35, 0.04, hue),
+    surfacePrimary: (hue: number) => oklch(0.3, 0.05, hue),
+    surfaceSecondary: (hue: number) => oklch(0.35, 0.05, hue),
 
     // Accents - vibrant colors for buttons/highlights
-    accentPrimary: (hue: number) => oklch(0.75, 0.18, hue), // Bright and vibrant
-    accentSecondary: (hue: number) => oklch(0.55, 0.16, hue), // Medium-bright, very saturated
+    accentPrimary: (hue: number) => oklch(0.75, 0.12, hue),
+    accentSecondary: (hue: number) => oklch(0.55, 0.09, hue),
 
     // Text colors - prominent white text
-    textPrimary: (hue: number) => oklch(0.95, 0.01, hue),
-    textSecondary: (hue: number) => oklch(0.75, 0.02, hue),
-    textTertiary: (hue: number) => oklch(0.55, 0.03, hue),
+    textPrimary: (hue: number) => oklch(0.95, 0.02, hue),
+    textSecondary: (hue: number) => oklch(0.75, 0.05, hue),
+    textTertiary: (hue: number) => oklch(0.55, 0.07, hue),
   },
 
   // Light theme colors - inverted approach with colored text/elements
   light: {
     // Backgrounds - neutral light backgrounds
-    backgroundPrimary: (hue: number) => oklch(0.98, 0.005, hue), // Almost white with tiny hint
-    backgroundSecondary: (hue: number) => oklch(0.95, 0.01, hue), // Very light neutral
+    backgroundPrimary: (hue: number) => oklch(0.95, 0.01, hue), // Almost white with tiny hint
+    backgroundSecondary: (hue: number) => oklch(0.95, 0.0, hue), // Very light neutral
 
     // Surfaces - neutral light surfaces
     surfacePrimary: (hue: number) => oklch(0.92, 0.01, hue), // Light neutral
     surfaceSecondary: (hue: number) => oklch(0.88, 0.02, hue), // Slightly tinted
 
     // Accents - SAME as dark theme for consistency
-    accentPrimary: (hue: number) => oklch(0.75, 0.18, hue), // Bright and vibrant
-    accentSecondary: (hue: number) => oklch(0.55, 0.16, hue), // Medium-bright, very saturated
+    accentPrimary: (hue: number) => oklch(0.75, 0.12, hue),
+    accentSecondary: (hue: number) => oklch(0.55, 0.09, hue),
 
-    // Text colors - now these are the COLORED elements (digits, etc.)
-    textPrimary: (hue: number) => oklch(0.25, 0.12, hue), // Dark, saturated colored text
-    textSecondary: (hue: number) => oklch(0.45, 0.08, hue), // Medium colored text
-    textTertiary: (hue: number) => oklch(0.65, 0.04, hue), // Light colored text
+    // Text colors - colored elements (digits, etc.)
+    textPrimary: (hue: number) => oklch(0.2, 0.03, hue),
+    textSecondary: (hue: number) => oklch(0.35, 0.07, hue),
+    textTertiary: (hue: number) => oklch(0.4, 0.075, hue),
   },
 };
 
