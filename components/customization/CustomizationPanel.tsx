@@ -22,7 +22,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
 
   // Bottom sheet setup
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['50%', '75%'], []);
+  const snapPoints = useMemo(() => ['25%', '75%'], []);
 
   // Sidebar animation - initialize properly based on layout
   const sidebarTranslateX = useSharedValue(useBottomSheet ? 0 : -320);
