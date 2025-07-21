@@ -3,7 +3,8 @@ import { Link, Stack } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function NotFoundScreen() {
-  const { state } = useCustomization();
+  const { state, getFontFamilyName } = useCustomization();
+  const fontFamily = getFontFamilyName();
 
   const styles = StyleSheet.create({
     container: {
@@ -18,10 +19,12 @@ export default function NotFoundScreen() {
       textAlign: 'center',
       color: state.colors.text,
       marginBottom: 20,
+      fontFamily,
     },
     link: {
       marginTop: 15,
       paddingVertical: 15,
+      fontFamily,
     },
   });
 
@@ -29,7 +32,7 @@ export default function NotFoundScreen() {
     <>
       <Stack.Screen options={{ title: 'Wibbly Wobbly, Timey-Wimey Stuff' }} />
       <View style={styles.container}>
-        <Text style={[styles.flavorText, { color: state.colors.text }]}>
+        <Text style={styles.flavorText}>
           People assume that time is a strict progression of cause to effect,
           but actually from a non-linear, non-subjective viewpoint,
           it's more like a big ball of wibbly wobbly, timey-wimey stuff

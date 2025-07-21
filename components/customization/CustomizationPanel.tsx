@@ -4,7 +4,7 @@ import React, { useCallback, useMemo, useRef } from 'react';
 import { Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useCustomization } from './context/CustomizationContext';
+import { FontFamily, useCustomization } from './context/CustomizationContext';
 import { HueSlider } from './HueSlider';
 
 interface CustomizationPanelProps {
@@ -12,8 +12,94 @@ interface CustomizationPanelProps {
   onClose: () => void;
 }
 
+// Custom Segmented Control for Font Selection
+function FontFamilySelector({
+  selectedFont,
+  onFontChange,
+  colors
+}: {
+  selectedFont: FontFamily;
+  onFontChange: (font: FontFamily) => void;
+  colors: any;
+}) {
+  return (
+    <View style={{
+      flexDirection: 'row',
+      backgroundColor: colors.primary,
+      borderRadius: 8,
+      padding: 4,
+    }}>
+      <TouchableOpacity
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          paddingVertical: 12,
+          paddingHorizontal: 16,
+          borderRadius: 6,
+          backgroundColor: selectedFont === 'inter' ? colors.accent : 'transparent',
+        }}
+        onPress={() => onFontChange('inter')}
+      >
+        <Text style={{
+          fontFamily: 'Inter_400Regular',
+          fontSize: 18,
+          fontWeight: '600',
+          color: selectedFont === 'inter'
+            ? (colors.text)
+            : colors.textSecondary,
+          marginBottom: 4,
+        }}>
+          12
+        </Text>
+        <Text style={{
+          fontSize: 12,
+          color: selectedFont === 'inter'
+            ? colors.text
+            : colors.textSecondary,
+          fontFamily: 'Inter_400Regular',
+        }}>
+          Sans
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          paddingVertical: 12,
+          paddingHorizontal: 16,
+          borderRadius: 6,
+          backgroundColor: selectedFont === 'merriweather' ? colors.accent : 'transparent',
+        }}
+        onPress={() => onFontChange('merriweather')}
+      >
+        <Text style={{
+          fontFamily: 'Merriweather_400Regular',
+          fontSize: 18,
+          fontWeight: '600',
+          color: selectedFont === 'merriweather'
+            ? colors.text
+            : colors.textSecondary,
+          marginBottom: 4,
+        }}>
+          12
+        </Text>
+        <Text style={{
+          fontSize: 12,
+          color: selectedFont === 'merriweather'
+            ? colors.text
+            : colors.textSecondary,
+          fontFamily: 'Inter_400Regular',
+        }}>
+          Serif
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelProps) {
-  const { state, setPrimaryHue, setSecondaryHue, setColorScheme } = useCustomization();
+  const { state, setPrimaryHue, setSecondaryHue, setColorScheme, setFontFamily } = useCustomization();
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
@@ -22,7 +108,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
 
   // Bottom sheet setup
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['25%', '75%'], []);
+  const snapPoints = useMemo(() => ['25%', '85%'], []); // Increased to accommodate font selector
 
   // Sidebar animation - initialize properly based on layout
   const sidebarTranslateX = useSharedValue(useBottomSheet ? 0 : -320);
@@ -92,6 +178,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
           fontSize: 24,
           fontWeight: '600',
           color: state.colors.text,
+          fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
         }}>
           Customize
         </Text>
@@ -114,6 +201,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
           fontWeight: '500',
           color: state.colors.text,
           marginBottom: 12,
+          fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
         }}>
           Appearance
         </Text>
@@ -137,6 +225,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
             fontSize: 16,
             color: state.colors.text,
             flex: 1,
+            fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
           }}>
             {state.colorScheme === 'dark' ? 'Dark Mode' : 'Light Mode'}
           </Text>
@@ -148,6 +237,24 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
         </TouchableOpacity>
       </View>
 
+      {/* Font Family Selection */}
+      <View style={{ marginBottom: 30 }}>
+        <Text style={{
+          fontSize: 16,
+          fontWeight: '500',
+          color: state.colors.text,
+          marginBottom: 12,
+          fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
+        }}>
+          Font Family
+        </Text>
+        <FontFamilySelector
+          selectedFont={state.fontFamily}
+          onFontChange={setFontFamily}
+          colors={state.colors}
+        />
+      </View>
+
       {/* Primary Color */}
       <View style={{ marginBottom: 30 }}>
         <Text style={{
@@ -155,6 +262,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
           fontWeight: '500',
           color: state.colors.text,
           marginBottom: 12,
+          fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
         }}>
           Primary Color
         </Text>
@@ -186,6 +294,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
           fontWeight: '500',
           color: state.colors.text,
           marginBottom: 12,
+          fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
         }}>
           Accent Color
         </Text>

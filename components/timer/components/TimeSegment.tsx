@@ -26,11 +26,12 @@ export const TimeSegment = memo(function TimeSegment({
   } = useSegmentEditing();
 
   const { state: timerState } = useTimer();
-  const { state: customState } = useCustomization();
+  const { state: customState, getFontFamilyName } = useCustomization();
   const inputRef = useRef<TextInput>(null);
 
   const isEditing = editingSegment === segment;
   const isTimerEmpty = timerState.totalMilliseconds === undefined;
+  const fontFamily = getFontFamilyName();
 
   // Focus the input when this segment becomes the editing segment
   useEffect(() => {
@@ -65,7 +66,7 @@ export const TimeSegment = memo(function TimeSegment({
         style={{
           position: isEditing ? 'relative' : 'absolute',
           color: isEditing ? customState.colors.text : 'transparent',
-          fontFamily: 'Inter_400Regular',
+          fontFamily,
           textAlign: 'center',
           minWidth: 0,
           maxWidth: inputWidth + 8,
@@ -116,7 +117,7 @@ export const TimeSegment = memo(function TimeSegment({
               key={index}
               style={{
                 color: customState.colors.text,
-                fontFamily: 'Inter_400Regular',
+                fontFamily,
                 textAlign: 'center',
                 includeFontPadding: false,
                 fontSize,

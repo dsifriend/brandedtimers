@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Text } from 'react-native';
-import { useCustomization } from '../../customization/context/CustomizationContext';
+import { useCustomization, } from '../../customization/context/CustomizationContext';
 
 interface TimeSeparatorProps {
   visible: boolean;
@@ -11,13 +11,15 @@ export const TimeSeparator = memo(function TimeSeparator({
   visible,
   fontSize
 }: TimeSeparatorProps) {
-  const { state: customState } = useCustomization();
+  const { state: customState, getFontFamilyName } = useCustomization();
+  const fontFamily = getFontFamilyName();
+
   return (
     <Text
       style={{
         color: customState.colors.text,
         verticalAlign: 'middle',
-        fontFamily: 'Inter_400Regular',
+        fontFamily,
         fontSize,
         opacity: visible ? 1 : 0,
         transform: [{ translateY: -fontSize * 0.0625 }]

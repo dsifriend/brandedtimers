@@ -3,6 +3,8 @@ import React, { createContext, useCallback, useContext, useEffect, useReducer } 
 import { Appearance, ColorSchemeName } from 'react-native';
 import { ColorPresets, toReactNativeColor } from '../../../utils/colorUtils';
 
+type FontFamily = 'inter' | 'merriweather';
+
 interface ColorSystem {
   primary: string;
   secondary: string;
@@ -16,6 +18,7 @@ interface CustomizationState {
   colorScheme: ColorSchemeName;
   primaryHue: number;
   secondaryHue: number;
+  fontFamily: FontFamily;
   colors: ColorSystem;
   isLoading: boolean;
 }
@@ -24,6 +27,7 @@ type CustomizationAction =
   | { type: 'SET_COLOR_SCHEME'; scheme: ColorSchemeName }
   | { type: 'SET_PRIMARY_HUE'; hue: number }
   | { type: 'SET_SECONDARY_HUE'; hue: number }
+  | { type: 'SET_FONT_FAMILY'; fontFamily: FontFamily }
   | { type: 'SET_LOADING'; loading: boolean }
   | { type: 'RESTORE_SETTINGS'; settings: Partial<CustomizationState> };
 
@@ -46,10 +50,23 @@ const generateColors = (primaryHue: number, secondaryHue: number, scheme: ColorS
   };
 };
 
+// Font family helper function
+const getFontFamilyName = (fontFamily: FontFamily): string => {
+  switch (fontFamily) {
+    case 'inter':
+      return 'Inter_400Regular';
+    case 'merriweather':
+      return 'Merriweather_400Regular';
+    default:
+      return 'Inter_400Regular';
+  }
+};
+
 const initialState: CustomizationState = {
   colorScheme: Appearance.getColorScheme() || 'dark',
   primaryHue: 220, // Default blue
   secondaryHue: 280, // Default purple
+  fontFamily: 'inter', // Default font
   colors: generateColors(220, 280, Appearance.getColorScheme() || 'dark'),
   isLoading: true,
 };
@@ -83,6 +100,12 @@ function customizationReducer(state: CustomizationState, action: CustomizationAc
       };
     }
 
+    case 'SET_FONT_FAMILY':
+      return {
+        ...state,
+        fontFamily: action.fontFamily,
+      };
+
     case 'SET_LOADING':
       return { ...state, isLoading: action.loading };
 
@@ -108,6 +131,8 @@ interface CustomizationContextValue {
   setPrimaryHue: (hue: number) => void;
   setSecondaryHue: (hue: number) => void;
   setColorScheme: (scheme: ColorSchemeName) => void;
+  setFontFamily: (fontFamily: FontFamily) => void;
+  getFontFamilyName: () => string;
   resetToDefaults: () => void;
 }
 
@@ -125,6 +150,7 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
         colorScheme: newState.colorScheme,
         primaryHue: newState.primaryHue,
         secondaryHue: newState.secondaryHue,
+        fontFamily: newState.fontFamily,
       };
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
     } catch (error) {
@@ -179,6 +205,14 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
     dispatch({ type: 'SET_COLOR_SCHEME', scheme });
   }, []);
 
+  const setFontFamily = useCallback((fontFamily: FontFamily) => {
+    dispatch({ type: 'SET_FONT_FAMILY', fontFamily });
+  }, []);
+
+  const getCurrentFontFamilyName = useCallback(() => {
+    return getFontFamilyName(state.fontFamily);
+  }, [state.fontFamily]);
+
   const resetToDefaults = useCallback(async () => {
     try {
       await AsyncStorage.removeItem(STORAGE_KEY);
@@ -187,6 +221,7 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
           colorScheme: 'dark',
           primaryHue: 220,
           secondaryHue: 280,
+          fontFamily: 'inter',
         }
       });
     } catch (error) {
@@ -200,6 +235,8 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
       setPrimaryHue,
       setSecondaryHue,
       setColorScheme,
+      setFontFamily,
+      getFontFamilyName: getCurrentFontFamilyName,
       resetToDefaults,
     }}>
       {children}
@@ -215,4 +252,4 @@ export function useCustomization() {
   return context;
 }
 
-export type { ColorSystem };
+export type { ColorSystem, FontFamily };

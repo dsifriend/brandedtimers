@@ -1,11 +1,5 @@
 import { StyleSheet } from "react-native";
 
-// Font configuration - change this to switch fonts easily
-// Note: Make sure to install and load the font in app.tsx or _layout.tsx
-// For Google Fonts, use: npx expo install @expo-google-fonts/FONT expo-font
-// Then import and load: import { useFonts, FONT } from '@expo-google-fonts/FONT';
-const FONT_FAMILY = "Inter_400Regular";
-
 export const timerStyles = StyleSheet.create({
   container: {
     flex: 1,
@@ -27,25 +21,25 @@ export const timerStyles = StyleSheet.create({
   },
   timeSegment: {
     color: "#fff",
-    fontFamily: FONT_FAMILY,
     textAlign: "center",
     includeFontPadding: false,
+    // fontFamily will be set dynamically via useCustomization
   },
   timeSegmentInput: {
     color: "#fff",
-    fontFamily: FONT_FAMILY,
     textAlign: "center",
     includeFontPadding: false,
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 4,
     paddingHorizontal: 4,
     minWidth: 0, // Allow dynamic sizing
+    // fontFamily will be set dynamically via useCustomization
   },
   separator: {
     color: "#fff",
-    fontFamily: FONT_FAMILY,
     includeFontPadding: false,
     textAlign: "center",
+    // fontFamily will be set dynamically via useCustomization
   },
   separatorContainer: {
     justifyContent: "center",
@@ -71,11 +65,6 @@ export const timerStyles = StyleSheet.create({
 });
 
 export const timerConfig = {
-  fonts: {
-    primary: FONT_FAMILY,
-    // Fallback system font that should be available everywhere
-    fallback: "System",
-  },
   colors: {
     background: "#000",
     text: "#fff",
