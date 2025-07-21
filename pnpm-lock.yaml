@@ -11,6 +11,9 @@ importers:
       '@expo-google-fonts/inter':
         specifier: ^0.4.1
         version: 0.4.1
+      '@expo-google-fonts/merriweather':
+        specifier: ^0.4.1
+        version: 0.4.1
       '@expo/vector-icons':
         specifier: ^14.1.0
         version: 14.1.0(expo-font@13.3.2(expo@53.0.20(@babel/core@7.28.0)(@expo/metro-runtime@5.0.4(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0)))(react-native-webview@13.13.5(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react@19.0.0))(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
@@ -682,6 +685,9 @@ packages:
 
   '@expo-google-fonts/inter@0.4.1':
     resolution: {integrity: sha512-ypL+XokTHEG+ie/nxNj/mS38afMrY4Li4oKvTJf9k9XvH7I21qfTGCsDtlZ6nIUWEAy1odoUZISdXT1nfMh4kA==}
+
+  '@expo-google-fonts/merriweather@0.4.1':
+    resolution: {integrity: sha512-tSwVmXIiYUlIRGiQG21+OcDmhrXzwjU2gjC4yzkZWnOFzNvH5zSDtiwTrlKC51cWC+LLMzMokGiqsMqN8QB0Nw==}
 
   '@expo/cli@0.24.20':
     resolution: {integrity: sha512-uF1pOVcd+xizNtVTuZqNGzy7I6IJon5YMmQidsURds1Ww96AFDxrR/NEACqeATNAmY60m8wy1VZZpSg5zLNkpw==}
@@ -4661,6 +4667,8 @@ snapshots:
       levn: 0.4.1
 
   '@expo-google-fonts/inter@0.4.1': {}
+
+  '@expo-google-fonts/merriweather@0.4.1': {}
 
   '@expo/cli@0.24.20':
     dependencies:
