@@ -1,3 +1,4 @@
+import { timerConfig } from "@/styles/timer.styles";
 import {
   useCallback,
   useDeferredValue,
@@ -6,7 +7,6 @@ import {
   useState,
 } from "react";
 import { Dimensions } from "react-native";
-import { timerConfig } from "../../../styles/timer.styles";
 
 interface FontMetrics {
   fontSize: number;
@@ -15,7 +15,7 @@ interface FontMetrics {
 }
 
 export function useFontMetrics(
-  totalMilliseconds: number,
+  totalMilliseconds: number | undefined,
   showHours: boolean,
   currentHours: number = 0
 ) {
@@ -34,12 +34,20 @@ export function useFontMetrics(
     const availableHeight = height * 0.6; // Use more vertical space
 
     // Calculate actual character count based on real values
-    const totalSeconds = Math.floor(deferredMilliseconds / 1000);
+    // Handle undefined case - use default layout for empty timer
+    const totalSeconds = deferredMilliseconds
+      ? Math.floor(deferredMilliseconds / 1000)
+      : 0;
     const hours = Math.floor(totalSeconds / 3600);
 
     // Determine actual digit counts
     const hasHours = hours > 0 || showHours;
-    const hourDigits = hasHours ? Math.max(2, hours.toString().length) : 0;
+    // For undefined/empty timer, assume 2 digit display (--) for each segment
+    const hourDigits = hasHours
+      ? deferredMilliseconds === undefined
+        ? 2
+        : Math.max(2, hours.toString().length)
+      : 0;
     const charCount = hourDigits + 2 + 2; // +2 for minutes, seconds
 
     // Add separator count

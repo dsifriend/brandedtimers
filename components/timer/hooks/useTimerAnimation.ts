@@ -8,7 +8,7 @@ export function useTimerAnimation() {
   const initialDurationRef = useRef<number>(0);
 
   useEffect(() => {
-    if (state.status === "running") {
+    if (state.status === "running" && state.totalMilliseconds !== undefined) {
       // Set initial values when starting
       if (startTimeRef.current === 0) {
         startTimeRef.current = performance.now();

@@ -10,6 +10,16 @@ export function useSegmentEditing() {
     (segment: "hours" | "minutes" | "seconds") => {
       if (state.status === "running") return;
 
+      // If timer is empty, start with empty string for editing
+      if (state.totalMilliseconds === undefined) {
+        dispatch({
+          type: "START_EDITING",
+          segment,
+          value: "",
+        });
+        return;
+      }
+
       const currentSegments = millisecondsToSegments(state.totalMilliseconds);
       const currentValue = currentSegments[segment];
 
@@ -41,9 +51,11 @@ export function useSegmentEditing() {
       [state.editingSegment]: numValue,
     };
 
+    const newDuration = segmentsToMilliseconds(newSegments);
+
     dispatch({
       type: "SET_DURATION",
-      duration: segmentsToMilliseconds(newSegments),
+      duration: newDuration === 0 ? undefined : newDuration,
     });
     dispatch({ type: "FINISH_EDITING", newValue: numValue });
     Keyboard.dismiss();

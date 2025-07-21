@@ -34,10 +34,12 @@ export const TimerControls = memo(function TimerControls() {
     return state.status === 'running' ? 'stop' : 'arrow-undo';
   };
 
-  const canStart = state.status === 'stopped' && state.totalMilliseconds > 0;
+  const canStart = state.status === 'stopped' && state.totalMilliseconds !== undefined && state.totalMilliseconds > 0;
   const canPause = state.status === 'running';
   const canResume = state.status === 'paused';
-  const canStopReset = state.status !== 'stopped' || state.totalMilliseconds > 0;
+  const canStopReset = state.status !== 'stopped' ||
+    state.totalMilliseconds !== undefined ||
+    (state.totalMilliseconds === 0 && state.originalDuration !== undefined);
 
   return (
     <View style={{

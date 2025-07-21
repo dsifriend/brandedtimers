@@ -3,8 +3,8 @@ import React, { createContext, useCallback, useContext, useReducer } from 'react
 type TimerStatus = 'stopped' | 'running' | 'paused';
 
 interface TimerState {
-  totalMilliseconds: number;
-  originalDuration: number;
+  totalMilliseconds: number | undefined;
+  originalDuration: number | undefined;
   status: TimerStatus;
   editingSegment: 'hours' | 'minutes' | 'seconds' | null;
   editingValue: string;
@@ -16,14 +16,14 @@ type TimerAction =
   | { type: 'STOP' }
   | { type: 'RESET' }
   | { type: 'TICK'; remaining: number }
-  | { type: 'SET_DURATION'; duration: number }
+  | { type: 'SET_DURATION'; duration: number | undefined }
   | { type: 'START_EDITING'; segment: 'hours' | 'minutes' | 'seconds'; value: string }
   | { type: 'UPDATE_EDITING_VALUE'; value: string }
   | { type: 'FINISH_EDITING'; newValue: number };
 
 const initialState: TimerState = {
-  totalMilliseconds: 0,
-  originalDuration: 0,
+  totalMilliseconds: undefined,
+  originalDuration: undefined,
   status: 'stopped',
   editingSegment: null,
   editingValue: '',
@@ -32,7 +32,7 @@ const initialState: TimerState = {
 function timerReducer(state: TimerState, action: TimerAction): TimerState {
   switch (action.type) {
     case 'START':
-      if (state.totalMilliseconds === 0) return state;
+      if (!state.totalMilliseconds || state.totalMilliseconds === 0) return state;
       return {
         ...state,
         status: 'running',
@@ -50,11 +50,20 @@ function timerReducer(state: TimerState, action: TimerAction): TimerState {
       };
 
     case 'RESET':
+      // If we're at 0 and have an original duration, restore it
+      if (state.totalMilliseconds === 0 && state.originalDuration) {
+        return {
+          ...state,
+          status: 'stopped',
+          totalMilliseconds: state.originalDuration,
+        };
+      }
+      // Otherwise, reset everything
       return {
         ...state,
         status: 'stopped',
-        totalMilliseconds: 0,
-        originalDuration: 0,
+        totalMilliseconds: undefined,
+        originalDuration: undefined,
       };
 
     case 'TICK':
@@ -105,7 +114,7 @@ interface TimerContextValue {
   state: TimerState;
   dispatch: React.Dispatch<TimerAction>;
   // Helper functions
-  millisecondsToSegments: (ms: number) => TimeSegments;
+  millisecondsToSegments: (ms: number | undefined) => TimeSegments;
   segmentsToMilliseconds: (segments: TimeSegments) => number;
 }
 
@@ -114,7 +123,10 @@ const TimerContext = createContext<TimerContextValue | undefined>(undefined);
 export function TimerProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(timerReducer, initialState);
 
-  const millisecondsToSegments = useCallback((ms: number): TimeSegments => {
+  const millisecondsToSegments = useCallback((ms: number | undefined): TimeSegments => {
+    if (ms === undefined) {
+      return { hours: 0, minutes: 0, seconds: 0 };
+    }
     const totalSeconds = Math.floor(ms / 1000);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
