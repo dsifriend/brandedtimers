@@ -102,7 +102,7 @@ function TimerContent() {
         {/* Timer Controls */}
         <View style={{
           position: 'absolute',
-          transform: [{ translateY: metrics.fontSize / 2 + Math.min(32, (dimensions.height - metrics.fontSize) / 8) }]
+          transform: [{ translateY: metrics.fontSize / 2 + Math.max(32, (dimensions.height - metrics.fontSize) / 8) }]
         }}>
           <TimerControls />
         </View>

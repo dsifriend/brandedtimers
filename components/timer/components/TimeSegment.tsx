@@ -42,7 +42,7 @@ export const TimeSegment = memo(function TimeSegment({
 
   // Calculate display value
   const displayValue = isTimerEmpty
-    ? '--'
+    ? '╌'
     : value.toString().padStart(
       segment === 'hours' ? Math.max(2, value.toString().length) : 2,
       '0'
@@ -50,41 +50,45 @@ export const TimeSegment = memo(function TimeSegment({
 
   const digits = displayValue.split('');
   const inputWidth = digitWidth * Math.max(2, (isEditing ? editingValue : displayValue).length);
+  const containerWidth = digitWidth * digits.length;
+
+  // Common text styles for both input and display
+  const baseTextStyle = {
+    fontFamily,
+    fontSize,
+    textAlign: 'center' as const,
+    textAlignVertical: 'center' as const,
+    includeFontPadding: false,
+    color: customState.colors.text,
+    ...(Platform.OS === 'android' && {
+      paddingTop: 0,
+      paddingBottom: 0,
+    }),
+  };
 
   return (
     <View
       style={{
-        flexDirection: 'row',
-        height: fontSize,
-        alignItems: 'center',
-        justifyContent: 'center',
+        width: Math.max(containerWidth, inputWidth + 8),
+        // height: fontSize,
       }}
     >
-      {/* Always render TextInput for tab navigation */}
+      {/* TextInput - absolutely positioned */}
       <TextInput
         ref={inputRef}
-        style={{
-          position: isEditing ? 'relative' : 'absolute',
-          color: isEditing ? customState.colors.text : 'transparent',
-          fontFamily,
-          textAlign: 'center',
-          minWidth: 0,
-          maxWidth: inputWidth + 8,
-          width: isEditing ? inputWidth + 8 : digitWidth * digits.length,
-          fontSize,
-          textAlignVertical: 'center',
-          backgroundColor: isEditing ? 'transparent' : 'transparent',
-          borderWidth: 0,
-          opacity: isEditing ? 1 : 0,
-          pointerEvents: isEditing ? 'auto' : 'none',
-          ...(Platform.OS === 'android' && {
-            paddingTop: 0,
-            paddingBottom: 0,
-          }),
-        }}
-        caretHidden={false}
+        style={[
+          baseTextStyle,
+          {
+            position: 'absolute',
+            width: inputWidth + 8,
+            minWidth: containerWidth,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
+            opacity: isEditing ? 1 : 0,
+            pointerEvents: isEditing ? 'auto' : 'none',
+          }
+        ]}
         value={isEditing ? editingValue : ''}
-        placeholder="--"
         placeholderTextColor={customState.colors.textSecondary}
         onChangeText={handleSegmentChange}
         onBlur={handleSegmentSubmit}
@@ -102,33 +106,32 @@ export const TimeSegment = memo(function TimeSegment({
         editable={timerState.status !== 'running'}
       />
 
-      {/* Display text (visible when not editing) */}
-      {!isEditing && (
-        <TouchableOpacity
-          onPress={() => handleSegmentPress(segment)}
-          disabled={editingSegment !== null || timerState.status === 'running'}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
-        >
-          {digits.map((digit, index) => (
-            <Text
-              key={index}
-              style={{
-                color: customState.colors.text,
-                fontFamily,
-                textAlign: 'center',
-                includeFontPadding: false,
-                fontSize,
+      {/* Display text */}
+      <TouchableOpacity
+        onPress={() => handleSegmentPress(segment)}
+        disabled={editingSegment !== null || timerState.status === 'running'}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: isEditing ? 0 : 1,
+          pointerEvents: isEditing ? 'none' : 'auto',
+        }}
+      >
+        {digits.map((digit, index) => (
+          <Text
+            key={index}
+            style={[
+              baseTextStyle,
+              {
                 width: digitWidth,
-              }}
-            >
-              {digit}
-            </Text>
-          ))}
-        </TouchableOpacity>
-      )}
+              }
+            ]}
+          >
+            {digit}
+          </Text>
+        ))}
+      </TouchableOpacity>
     </View>
   );
 });
