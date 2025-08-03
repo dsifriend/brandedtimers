@@ -50,34 +50,17 @@ export function useFontMetrics(
       // Use editing value length for the segment being edited
       const editingLength = editingValue.length;
 
-      // Calculate total digits including editing segment
-      const totalDigitsWithEditing =
-        (editingSegment === "hours"
+      // Use dynamic sizing
+      hourDigits =
+        editingSegment === "hours"
           ? editingLength
           : hasHours
           ? Math.max(2, hours.toString().length)
-          : 0) +
-        (editingSegment === "minutes" ? Math.max(2, editingLength) : 2) +
-        (editingSegment === "seconds" ? Math.max(2, editingLength) : 2);
-
-      // If total exceeds 10 digits, fall back to default behavior
-      if (totalDigitsWithEditing > 10) {
-        hourDigits = hasHours ? Math.max(2, hours.toString().length) : 0;
-        minuteDigits = 2;
-        secondDigits = 2;
-      } else {
-        // Use dynamic sizing
-        hourDigits =
-          editingSegment === "hours"
-            ? editingLength
-            : hasHours
-            ? Math.max(2, hours.toString().length)
-            : 0;
-        minuteDigits =
-          editingSegment === "minutes" ? Math.max(2, editingLength) : 2;
-        secondDigits =
-          editingSegment === "seconds" ? Math.max(2, editingLength) : 2;
-      }
+          : 0;
+      minuteDigits =
+        editingSegment === "minutes" ? Math.max(2, editingLength) : 2;
+      secondDigits =
+        editingSegment === "seconds" ? Math.max(2, editingLength) : 2;
     } else {
       // Normal behavior when not editing
       hourDigits = hasHours

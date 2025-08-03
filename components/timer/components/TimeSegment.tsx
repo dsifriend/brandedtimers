@@ -69,8 +69,7 @@ export const TimeSegment = memo(function TimeSegment({
   return (
     <View
       style={{
-        width: Math.max(containerWidth, inputWidth + 8),
-        // height: fontSize,
+        width: Math.max(containerWidth, inputWidth),
       }}
     >
       {/* TextInput - absolutely positioned */}
@@ -80,8 +79,7 @@ export const TimeSegment = memo(function TimeSegment({
           baseTextStyle,
           {
             position: 'absolute',
-            width: inputWidth + 8,
-            minWidth: containerWidth,
+            width: inputWidth,
             backgroundColor: 'transparent',
             borderWidth: 0,
             opacity: isEditing ? 1 : 0,
