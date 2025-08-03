@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import React, { useCallback, useMemo, useRef } from 'react';
-import { Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontFamily, useCustomization } from './context/CustomizationContext';
@@ -377,7 +377,9 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
           sidebarStyle,
         ]}
       >
-        {renderContent()}
+        <ScrollView>
+          {renderContent()}
+        </ScrollView>
       </Animated.View>
     </>
   );
