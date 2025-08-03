@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Platform, Text } from 'react-native';
+import { Text } from 'react-native';
 import { useCustomization, } from '../../customization/context/CustomizationContext';
 
 interface TimeSeparatorProps {
@@ -22,7 +22,7 @@ export const TimeSeparator = memo(function TimeSeparator({
         fontFamily,
         fontSize,
         opacity: visible ? 1 : 0,
-        transform: Platform.OS != 'ios' ? [{ translateY: -fontSize * 0.0625 }] : [],
+        transform: true ? [{ translateY: -fontSize * 0.0625 }] : [],
       }}
     >
       :

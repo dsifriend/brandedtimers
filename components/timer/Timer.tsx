@@ -24,11 +24,13 @@ function TimerContent() {
   const segments = millisecondsToSegments(state.totalMilliseconds);
   const showHours = segments.hours > 0 || editingSegment === 'hours';
 
-  // Pass actual hour value for dynamic sizing
+  // Pass editing state for dynamic sizing
   const metrics = useFontMetrics(
     state.totalMilliseconds,
     showHours,
-    segments.hours
+    segments.hours,
+    state.editingSegment,
+    state.editingValue
   );
 
   // Blink effect for separators
