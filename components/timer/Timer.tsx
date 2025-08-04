@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, useWindowDimensions } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCustomization } from '../customization/context/CustomizationContext';
 import { TimeSegment } from './components/TimeSegment';
@@ -32,6 +33,26 @@ function TimerContent() {
     state.editingSegment,
     state.editingValue
   );
+
+  // Hours segment fade animation
+  const hoursOpacity = useSharedValue(showHours ? 1 : 0);
+
+  useEffect(() => {
+    hoursOpacity.value = withTiming(showHours ? 1 : 0, {
+      duration: 300,
+    });
+  }, [showHours, hoursOpacity]);
+
+  const hoursAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: hoursOpacity.value,
+      transform: [
+        {
+          scaleX: hoursOpacity.value,
+        },
+      ],
+    };
+  });
 
   // Blink effect for separators
   useEffect(() => {
@@ -70,44 +91,58 @@ function TimerContent() {
           alignItems: 'center',
         }}>
           {showHours && (
-            <>
+            <Animated.View
+              style={[
+                {
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                },
+                hoursAnimatedStyle
+              ]}
+            >
               <TimeSegment
                 value={segments.hours}
                 segment="hours"
-                fontSize={metrics.fontSize}
-                digitWidth={metrics.digitWidth}
+                metrics={metrics}
               />
               <TimeSeparator
                 visible={blinkVisible}
-                fontSize={metrics.fontSize}
+                metrics={metrics}
               />
-            </>
+            </Animated.View>
           )}
+
           <TimeSegment
             value={segments.minutes}
             segment="minutes"
-            fontSize={metrics.fontSize}
-            digitWidth={metrics.digitWidth}
+            metrics={metrics}
           />
           <TimeSeparator
             visible={blinkVisible}
-            fontSize={metrics.fontSize}
+            metrics={metrics}
           />
           <TimeSegment
             value={segments.seconds}
             segment="seconds"
-            fontSize={metrics.fontSize}
-            digitWidth={metrics.digitWidth}
+            metrics={metrics}
           />
         </View>
 
         {/* Timer Controls */}
-        <View style={{
-          position: 'absolute',
-          transform: [{ translateY: metrics.fontSize / 2 + Math.max(32, (dimensions.height - metrics.fontSize) / 8) }]
-        }}>
+        <Animated.View
+          style={[
+            {
+              position: 'absolute',
+            },
+            useAnimatedStyle(() => ({
+              transform: [{
+                translateY: metrics.fontSize.value / 2 + Math.max(32, (dimensions.height - metrics.fontSize.value) / 8)
+              }]
+            }))
+          ]}
+        >
           <TimerControls />
-        </View>
+        </Animated.View>
       </View>
     </View>
   );

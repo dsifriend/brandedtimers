@@ -1,31 +1,45 @@
 import React, { memo } from 'react';
-import { Text } from 'react-native';
-import { useCustomization, } from '../../customization/context/CustomizationContext';
+import Animated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
+import { useCustomization } from '../../customization/context/CustomizationContext';
+
+interface FontMetrics {
+  fontSize: SharedValue<number>;
+  digitWidth: SharedValue<number>;
+  isReady: boolean;
+}
 
 interface TimeSeparatorProps {
   visible: boolean;
-  fontSize: number;
+  metrics: FontMetrics;
 }
+
+const AnimatedText = Animated.createAnimatedComponent(Animated.Text);
 
 export const TimeSeparator = memo(function TimeSeparator({
   visible,
-  fontSize
+  metrics
 }: TimeSeparatorProps) {
   const { state: customState, getFontFamilyName } = useCustomization();
   const fontFamily = getFontFamilyName();
 
+  const animatedStyle = useAnimatedStyle(() => ({
+    fontSize: metrics.fontSize.value,
+    transform: [{ translateY: -metrics.fontSize.value * 0.0625 }],
+  }));
+
   return (
-    <Text
-      style={{
-        color: customState.colors.text,
-        verticalAlign: 'middle',
-        fontFamily,
-        fontSize,
-        opacity: visible ? 1 : 0,
-        transform: true ? [{ translateY: -fontSize * 0.0625 }] : [],
-      }}
+    <AnimatedText
+      style={[
+        {
+          color: customState.colors.text,
+          verticalAlign: 'middle',
+          fontFamily,
+          opacity: visible ? 1 : 0,
+        },
+        animatedStyle,
+      ]}
     >
       :
-    </Text>
+    </AnimatedText>
   );
 });

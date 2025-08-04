@@ -1,10 +1,15 @@
 import { timerConfig } from "@/styles/timer.styles";
 import { useCallback, useDeferredValue, useEffect, useState } from "react";
 import { Dimensions, Keyboard, Platform } from "react-native";
+import {
+  SharedValue,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
 interface FontMetrics {
-  fontSize: number;
-  digitWidth: number;
+  fontSize: SharedValue<number>;
+  digitWidth: SharedValue<number>;
   isReady: boolean;
 }
 
@@ -15,15 +20,16 @@ export function useFontMetrics(
   editingSegment: "hours" | "minutes" | "seconds" | null = null,
   editingValue: string = ""
 ) {
-  const [metrics, setMetrics] = useState<FontMetrics>({
-    fontSize: 48,
-    digitWidth: 0,
-    isReady: false,
-  });
-
+  const [isReady, setIsReady] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const deferredMilliseconds = useDeferredValue(totalMilliseconds);
+
+  // Animated values for smooth transitions
+  const fontSize = useSharedValue(48);
+  const digitWidth = useSharedValue(
+    48 * timerConfig.layout.characterWidthRatio
+  );
 
   const calculateFontSize = useCallback(() => {
     const { width, height } = Dimensions.get("window");
@@ -94,13 +100,25 @@ export function useFontMetrics(
 
     const newFontSize = Math.min(maxFontSizeByWidth, maxFontSizeByHeight, 500); // Cap at 500
     const clampedFontSize = Math.max(24, newFontSize);
+    const newDigitWidth =
+      clampedFontSize * timerConfig.layout.characterWidthRatio;
 
-    setMetrics((prev) => ({
-      ...prev,
-      fontSize: clampedFontSize,
-      digitWidth: clampedFontSize * timerConfig.layout.characterWidthRatio,
-      isReady: true,
-    }));
+    // Animate to new values with spring animation
+    fontSize.value = withSpring(clampedFontSize, {
+      damping: 20,
+      stiffness: 300,
+      mass: 0.8,
+    });
+
+    digitWidth.value = withSpring(newDigitWidth, {
+      damping: 20,
+      stiffness: 300,
+      mass: 0.8,
+    });
+
+    if (!isReady) {
+      setIsReady(true);
+    }
   }, [
     deferredMilliseconds,
     showHours,
@@ -108,6 +126,9 @@ export function useFontMetrics(
     editingSegment,
     editingValue,
     keyboardHeight,
+    fontSize,
+    digitWidth,
+    isReady,
   ]);
 
   useEffect(() => {
@@ -146,5 +167,5 @@ export function useFontMetrics(
     };
   }, []);
 
-  return metrics;
+  return { fontSize, digitWidth, isReady };
 }

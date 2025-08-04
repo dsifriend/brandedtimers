@@ -1,21 +1,29 @@
 import React, { memo, useEffect, useRef } from 'react';
-import { Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Platform, Text, TextInput, TouchableOpacity } from 'react-native';
+import Animated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { useCustomization } from '../../customization/context/CustomizationContext';
 import { useTimer } from '../context/TimerContext';
 import { useSegmentEditing } from '../hooks/useSegmentEditing';
 
+interface FontMetrics {
+  fontSize: SharedValue<number>;
+  digitWidth: SharedValue<number>;
+  isReady: boolean;
+}
+
 interface TimeSegmentProps {
   value: number;
   segment: 'hours' | 'minutes' | 'seconds';
-  fontSize: number;
-  digitWidth: number;
+  metrics: FontMetrics;
 }
+
+const AnimatedText = Animated.createAnimatedComponent(Text);
+const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
 export const TimeSegment = memo(function TimeSegment({
   value,
   segment,
-  fontSize,
-  digitWidth
+  metrics
 }: TimeSegmentProps) {
   const {
     editingSegment,
@@ -49,13 +57,28 @@ export const TimeSegment = memo(function TimeSegment({
     );
 
   const digits = displayValue.split('');
-  const inputWidth = digitWidth * Math.max(2, (isEditing ? editingValue : displayValue).length);
-  const containerWidth = digitWidth * digits.length;
+
+  // Animated styles for text elements
+  const animatedTextStyle = useAnimatedStyle(() => ({
+    fontSize: metrics.fontSize.value,
+    width: metrics.digitWidth.value,
+  }));
+
+  const animatedInputStyle = useAnimatedStyle(() => ({
+    fontSize: metrics.fontSize.value,
+    width: metrics.digitWidth.value * Math.max(2, (isEditing ? editingValue : displayValue).length),
+  }));
+
+  const animatedContainerStyle = useAnimatedStyle(() => ({
+    width: Math.max(
+      metrics.digitWidth.value * digits.length,
+      metrics.digitWidth.value * Math.max(2, (isEditing ? editingValue : displayValue).length)
+    ),
+  }));
 
   // Common text styles for both input and display
   const baseTextStyle = {
     fontFamily,
-    fontSize,
     textAlign: 'center' as const,
     textAlignVertical: 'center' as const,
     includeFontPadding: false,
@@ -67,19 +90,15 @@ export const TimeSegment = memo(function TimeSegment({
   };
 
   return (
-    <View
-      style={{
-        width: Math.max(containerWidth, inputWidth),
-      }}
-    >
+    <Animated.View style={animatedContainerStyle}>
       {/* TextInput - absolutely positioned */}
-      <TextInput
+      <AnimatedTextInput
         ref={inputRef}
         style={[
           baseTextStyle,
+          animatedInputStyle,
           {
             position: 'absolute',
-            width: inputWidth,
             backgroundColor: 'transparent',
             borderWidth: 0,
             opacity: isEditing ? 1 : 0,
@@ -117,19 +136,17 @@ export const TimeSegment = memo(function TimeSegment({
         }}
       >
         {digits.map((digit, index) => (
-          <Text
+          <AnimatedText
             key={index}
             style={[
               baseTextStyle,
-              {
-                width: digitWidth,
-              }
+              animatedTextStyle,
             ]}
           >
             {digit}
-          </Text>
+          </AnimatedText>
         ))}
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   );
 });
