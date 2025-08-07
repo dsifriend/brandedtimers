@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import * as ImageManipulator from 'expo-image-manipulator';
+import * as ImagePicker from 'expo-image-picker';
 import React, { useCallback, useMemo, useRef } from 'react';
-import { ScrollView, Switch, Text, TextInput, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { Alert, Image, ScrollView, Switch, Text, TextInput, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontFamily, useCustomization } from './context/CustomizationContext';
@@ -108,6 +110,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
     setHeaderMain,
     setHeaderMainRight,
     setHeaderSub,
+    setHeaderImage,
     toggleSplitHeading
   } = useCustomization();
   const { width, height } = useWindowDimensions();
@@ -169,6 +172,34 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
   const toggleColorScheme = useCallback(() => {
     setColorScheme(state.colorScheme === 'dark' ? 'light' : 'dark');
   }, [state.colorScheme, setColorScheme]);
+
+  const handlePickImage = useCallback(async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        // Resize to 256x256 and convert to base64
+        const manipulated = await ImageManipulator.manipulateAsync(
+          result.assets[0].uri,
+          [{ resize: { width: 256, height: 256 } }],
+          { compress: 0.8, format: ImageManipulator.SaveFormat.PNG, base64: true }
+        );
+
+        setHeaderImage(manipulated.base64 || null);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to pick image');
+    }
+  }, [setHeaderImage]);
+
+  const handleRemoveImage = useCallback(() => {
+    setHeaderImage(null);
+  }, [setHeaderImage]);
 
   const renderContent = () => (
     <View style={{
@@ -235,7 +266,6 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
 
         {/* Split Heading Toggle */}
         <TouchableOpacity
-          onPress={toggleSplitHeading}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
@@ -256,8 +286,10 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
           <Switch
             value={state.header.splitHeading}
             onValueChange={toggleSplitHeading}
-            trackColor={{ false: state.colors.textSecondary, true: state.colors.accent }}
+            trackColor={{ false: state.colors.textSecondary, true: state.colors.background }}
             thumbColor={state.colors.background}
+            //@ts-expect-error type
+            activeThumbColor={state.colors.text}
           />
         </TouchableOpacity>
 
@@ -293,8 +325,76 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
             fontSize: 16,
             color: state.colors.text,
             fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
+            marginBottom: 12,
           }}
         />
+
+        {/* Image Picker */}
+        <View style={{ marginBottom: 12 }}>
+          {state.header.imageBase64 ? (
+            <View style={{
+              backgroundColor: state.colors.primary,
+              borderRadius: 12,
+              padding: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-around',
+            }}>
+              <Image
+                source={{ uri: `data:image/png;base64,${state.header.imageBase64}` }}
+                style={{
+                  width: 128,
+                  height: 128,
+                  borderRadius: 4,
+                }}
+              />
+              <TouchableOpacity
+                onPress={handleRemoveImage}
+                style={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: state.colors.secondary,
+                  borderRadius: 50,
+                  padding: 24,
+                  width: 16,
+                  height: 16,
+                }}
+              >
+                <Ionicons
+                  name='close'
+                  size={24}
+                  color={state.colors.text}
+                />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              onPress={handlePickImage}
+              style={{
+                backgroundColor: state.colors.primary,
+                borderRadius: 12,
+                padding: 16,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Ionicons
+                name="image-outline"
+                size={20}
+                color={state.colors.text}
+                style={{ marginRight: 8 }}
+              />
+              <Text style={{
+                color: state.colors.text,
+                fontSize: 16,
+                fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
+              }}>
+                Add Logo
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {/* Color Scheme Toggle */}
@@ -436,7 +536,9 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
         handleIndicatorStyle={{ backgroundColor: state.colors.textSecondary }}
       >
         <BottomSheetView style={{ flex: 1 }}>
-          {renderContent()}
+          <ScrollView>
+            {renderContent()}
+          </ScrollView>
         </BottomSheetView>
       </BottomSheet>
     );

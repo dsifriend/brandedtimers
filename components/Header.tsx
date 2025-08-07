@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, useWindowDimensions } from 'react-native';
+import { Image, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCustomization } from './customization/context/CustomizationContext';
 
@@ -9,17 +9,22 @@ export function Header() {
   const insets = useSafeAreaInsets();
   const fontFamily = getFontFamilyName();
 
-  const { mainHeading, mainHeadingRight, subheading, splitHeading } = state.header;
+  const { mainHeading, mainHeadingRight, subheading, splitHeading, imageBase64 } = state.header;
 
   // Don't render if all fields are empty
   if (!mainHeading && !mainHeadingRight && !subheading) {
     return null;
   }
 
-  // Calculate if split heading should stack
-  const shouldStack = splitHeading && mainHeadingRight && (
-    // Stack if combined text is too long for the screen width
-    (mainHeading.length + mainHeadingRight.length) * 12 > width * 0.7
+  const image = (
+    <Image
+      source={{ uri: `data:image/png;base64,${imageBase64}` }}
+      style={{
+        width: 128,
+        height: 128,
+        borderRadius: 4,
+      }}
+    />
   );
 
   return (
@@ -32,40 +37,64 @@ export function Header() {
       paddingHorizontal: 20,
       paddingBottom: 16,
       backgroundColor: state.colors.background,
-      borderBottomWidth: 2,
-      borderBottomColor: state.colors.textSecondary,
-      zIndex: 10,
+      alignItems: 'center',
     }}>
+      {!splitHeading && imageBase64 && image}
+
       <View style={{
         alignItems: 'center',
       }}>
         {/* Main Heading */}
         {mainHeading && (
           <View style={{
-            flexDirection: shouldStack ? 'column' : 'row',
+            flexDirection: 'row',
             alignItems: 'center',
-            gap: shouldStack ? 8 : 16,
+            width: '100%',
           }}>
-            <Text style={{
-              fontSize: 24,
-              fontWeight: '600',
-              fontFamily,
-              color: state.colors.accent,
-              textAlign: 'center',
+            {/* Left column */}
+            <View style={{
+              flex: 1,
+              alignItems: splitHeading ? 'flex-end' : 'center',
+              paddingRight: splitHeading ? 8 : 0,
             }}>
-              {mainHeading}
-            </Text>
-
-            {splitHeading && mainHeadingRight && (
               <Text style={{
-                fontSize: 24,
+                fontSize: 36,
                 fontWeight: '600',
                 fontFamily,
                 color: state.colors.accent,
-                textAlign: 'center',
+                textAlign: splitHeading ? 'right' : 'center',
               }}>
-                {mainHeadingRight}
+                {mainHeading}
               </Text>
+            </View>
+
+            {/* Center column - only when split */}
+            {splitHeading && imageBase64 && (
+              <View style={{
+                width: 144, // 128 + padding
+                alignItems: 'center',
+              }}>
+                {image}
+              </View>
+            )}
+
+            {/* Right column - only when split */}
+            {splitHeading && mainHeadingRight && (
+              <View style={{
+                flex: 1,
+                alignItems: 'flex-start',
+                paddingLeft: 8,
+              }}>
+                <Text style={{
+                  fontSize: 36,
+                  fontWeight: '600',
+                  fontFamily,
+                  color: state.colors.accent,
+                  textAlign: 'left',
+                }}>
+                  {mainHeadingRight}
+                </Text>
+              </View>
             )}
           </View>
         )}
@@ -73,11 +102,11 @@ export function Header() {
         {/* Subheading */}
         {subheading && (
           <Text style={{
-            fontSize: 16,
+            fontSize: 24,
             fontFamily,
             color: state.colors.textSecondary,
             textAlign: 'center',
-            marginTop: mainHeading ? 8 : 0,
+            marginTop: (mainHeading || imageBase64) ? 8 : 0,
           }}>
             {subheading}
           </Text>
@@ -86,31 +115,3 @@ export function Header() {
     </View>
   );
 }
-
-// Helper hook to get header height for other components
-export function useHeaderHeight() {
-  const { state } = useCustomization();
-  const insets = useSafeAreaInsets();
-
-  const { mainHeading, mainHeadingRight, subheading } = state.header;
-  const hasContent = mainHeading || mainHeadingRight || subheading;
-
-  if (!hasContent) return 0;
-
-  // Base padding
-  let height = Math.max(insets.top, 20) + 16; // top + bottom padding
-
-  // Main heading height
-  if (mainHeading || mainHeadingRight) {
-    height += 32; // Approximate height of 24px font with line height
-  }
-
-  // Subheading height
-  if (subheading) {
-    height += mainHeading ? 8 : 0; // margin
-    height += 24; // Approximate height of 16px font with line height
-  }
-
-  return height;
-}
-

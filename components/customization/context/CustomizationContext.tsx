@@ -19,6 +19,7 @@ interface HeaderConfig {
   mainHeadingRight: string;
   subheading: string;
   splitHeading: boolean;
+  imageBase64: string | null;
 }
 
 interface CustomizationState {
@@ -41,6 +42,7 @@ type CustomizationAction =
   | { type: 'SET_HEADER_MAIN_RIGHT'; text: string }
   | { type: 'SET_HEADER_SUB'; text: string }
   | { type: 'TOGGLE_SPLIT_HEADING' }
+  | { type: 'SET_HEADER_IMAGE'; imageBase64: string | null }
   | { type: 'RESTORE_SETTINGS'; settings: Partial<CustomizationState> };
 
 // OKLCH-based color generation with React Native compatible output
@@ -85,6 +87,7 @@ const initialState: CustomizationState = {
     mainHeadingRight: '',
     subheading: '',
     splitHeading: false,
+    imageBase64: null,
   },
   isLoading: true,
 };
@@ -151,6 +154,15 @@ function customizationReducer(state: CustomizationState, action: CustomizationAc
         },
       };
 
+    case 'SET_HEADER_IMAGE':
+      return {
+        ...state,
+        header: {
+          ...state.header,
+          imageBase64: action.imageBase64,
+        },
+      };
+
     case 'TOGGLE_SPLIT_HEADING':
       return {
         ...state,
@@ -190,6 +202,7 @@ interface CustomizationContextValue {
   setHeaderMain: (text: string) => void;
   setHeaderMainRight: (text: string) => void;
   setHeaderSub: (text: string) => void;
+  setHeaderImage: (imageBase64: string | null) => void;
   toggleSplitHeading: () => void;
   getFontFamilyName: () => string;
   resetToDefaults: () => void;
@@ -281,6 +294,10 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
     dispatch({ type: 'SET_HEADER_SUB', text });
   }, []);
 
+  const setHeaderImage = useCallback((imageBase64: string | null) => {
+    dispatch({ type: 'SET_HEADER_IMAGE', imageBase64 });
+  }, []);
+
   const toggleSplitHeading = useCallback(() => {
     dispatch({ type: 'TOGGLE_SPLIT_HEADING' });
   }, []);
@@ -303,6 +320,7 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
             mainHeadingRight: '',
             subheading: '',
             splitHeading: false,
+            imageBase64: null,
           },
         }
       });
@@ -321,6 +339,7 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
       setHeaderMain,
       setHeaderMainRight,
       setHeaderSub,
+      setHeaderImage,
       toggleSplitHeading,
       getFontFamilyName: getCurrentFontFamilyName,
       resetToDefaults,
