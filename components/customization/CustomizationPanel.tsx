@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import React, { useCallback, useMemo, useRef } from 'react';
-import { ScrollView, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { ScrollView, Switch, Text, TextInput, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontFamily, useCustomization } from './context/CustomizationContext';
@@ -99,7 +99,17 @@ function FontFamilySelector({
 }
 
 export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelProps) {
-  const { state, setPrimaryHue, setSecondaryHue, setColorScheme, setFontFamily } = useCustomization();
+  const {
+    state,
+    setPrimaryHue,
+    setSecondaryHue,
+    setColorScheme,
+    setFontFamily,
+    setHeaderMain,
+    setHeaderMainRight,
+    setHeaderSub,
+    toggleSplitHeading
+  } = useCustomization();
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
@@ -108,7 +118,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
 
   // Bottom sheet setup
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['25%', '85%'], []); // Increased to accommodate font selector
+  const snapPoints = useMemo(() => ['25%', '90%'], []); // Increased for more content
 
   // Sidebar animation - initialize properly based on layout
   const sidebarTranslateX = useSharedValue(useBottomSheet ? 0 : -320);
@@ -192,6 +202,99 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
         >
           <Ionicons name="close" size={20} color={state.colors.text} />
         </TouchableOpacity>
+      </View>
+
+      {/* Header Text Section */}
+      <View style={{ marginBottom: 30 }}>
+        <Text style={{
+          fontSize: 16,
+          fontWeight: '500',
+          color: state.colors.text,
+          marginBottom: 12,
+          fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
+        }}>
+          Header Text
+        </Text>
+
+        {/* Main Heading */}
+        <TextInput
+          value={state.header.mainHeading}
+          onChangeText={setHeaderMain}
+          placeholder="Main heading"
+          placeholderTextColor={state.colors.textSecondary}
+          style={{
+            backgroundColor: state.colors.primary,
+            borderRadius: 12,
+            padding: 16,
+            fontSize: 16,
+            color: state.colors.text,
+            fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
+            marginBottom: 12,
+          }}
+        />
+
+        {/* Split Heading Toggle */}
+        <TouchableOpacity
+          onPress={toggleSplitHeading}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            backgroundColor: state.colors.primary,
+            borderRadius: 12,
+            padding: 16,
+            marginBottom: 12,
+          }}
+        >
+          <Text style={{
+            fontSize: 16,
+            color: state.colors.text,
+            fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
+          }}>
+            Split Heading
+          </Text>
+          <Switch
+            value={state.header.splitHeading}
+            onValueChange={toggleSplitHeading}
+            trackColor={{ false: state.colors.textSecondary, true: state.colors.accent }}
+            thumbColor={state.colors.background}
+          />
+        </TouchableOpacity>
+
+        {/* Right Half of Main Heading (conditional) */}
+        {state.header.splitHeading && (
+          <TextInput
+            value={state.header.mainHeadingRight}
+            onChangeText={setHeaderMainRight}
+            placeholder="Main heading (right)"
+            placeholderTextColor={state.colors.textSecondary}
+            style={{
+              backgroundColor: state.colors.primary,
+              borderRadius: 12,
+              padding: 16,
+              fontSize: 16,
+              color: state.colors.text,
+              fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
+              marginBottom: 12,
+            }}
+          />
+        )}
+
+        {/* Subheading */}
+        <TextInput
+          value={state.header.subheading}
+          onChangeText={setHeaderSub}
+          placeholder="Subheading"
+          placeholderTextColor={state.colors.textSecondary}
+          style={{
+            backgroundColor: state.colors.primary,
+            borderRadius: 12,
+            padding: 16,
+            fontSize: 16,
+            color: state.colors.text,
+            fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
+          }}
+        />
       </View>
 
       {/* Color Scheme Toggle */}

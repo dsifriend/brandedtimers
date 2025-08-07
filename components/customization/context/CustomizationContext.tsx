@@ -14,12 +14,20 @@ interface ColorSystem {
   textSecondary: string;
 }
 
+interface HeaderConfig {
+  mainHeading: string;
+  mainHeadingRight: string;
+  subheading: string;
+  splitHeading: boolean;
+}
+
 interface CustomizationState {
   colorScheme: ColorSchemeName;
   primaryHue: number;
   secondaryHue: number;
   fontFamily: FontFamily;
   colors: ColorSystem;
+  header: HeaderConfig;
   isLoading: boolean;
 }
 
@@ -29,6 +37,10 @@ type CustomizationAction =
   | { type: 'SET_SECONDARY_HUE'; hue: number }
   | { type: 'SET_FONT_FAMILY'; fontFamily: FontFamily }
   | { type: 'SET_LOADING'; loading: boolean }
+  | { type: 'SET_HEADER_MAIN'; text: string }
+  | { type: 'SET_HEADER_MAIN_RIGHT'; text: string }
+  | { type: 'SET_HEADER_SUB'; text: string }
+  | { type: 'TOGGLE_SPLIT_HEADING' }
   | { type: 'RESTORE_SETTINGS'; settings: Partial<CustomizationState> };
 
 // OKLCH-based color generation with React Native compatible output
@@ -68,6 +80,12 @@ const initialState: CustomizationState = {
   secondaryHue: 280, // Default purple
   fontFamily: 'inter', // Default font
   colors: generateColors(220, 280, Appearance.getColorScheme() || 'dark'),
+  header: {
+    mainHeading: '',
+    mainHeadingRight: '',
+    subheading: '',
+    splitHeading: false,
+  },
   isLoading: true,
 };
 
@@ -106,6 +124,43 @@ function customizationReducer(state: CustomizationState, action: CustomizationAc
         fontFamily: action.fontFamily,
       };
 
+    case 'SET_HEADER_MAIN':
+      return {
+        ...state,
+        header: {
+          ...state.header,
+          mainHeading: action.text,
+        },
+      };
+
+    case 'SET_HEADER_MAIN_RIGHT':
+      return {
+        ...state,
+        header: {
+          ...state.header,
+          mainHeadingRight: action.text,
+        },
+      };
+
+    case 'SET_HEADER_SUB':
+      return {
+        ...state,
+        header: {
+          ...state.header,
+          subheading: action.text,
+        },
+      };
+
+    case 'TOGGLE_SPLIT_HEADING':
+      return {
+        ...state,
+        header: {
+          ...state.header,
+          splitHeading: !state.header.splitHeading,
+          mainHeadingRight: !state.header.splitHeading ? state.header.mainHeadingRight : '',
+        },
+      };
+
     case 'SET_LOADING':
       return { ...state, isLoading: action.loading };
 
@@ -132,6 +187,10 @@ interface CustomizationContextValue {
   setSecondaryHue: (hue: number) => void;
   setColorScheme: (scheme: ColorSchemeName) => void;
   setFontFamily: (fontFamily: FontFamily) => void;
+  setHeaderMain: (text: string) => void;
+  setHeaderMainRight: (text: string) => void;
+  setHeaderSub: (text: string) => void;
+  toggleSplitHeading: () => void;
   getFontFamilyName: () => string;
   resetToDefaults: () => void;
 }
@@ -151,6 +210,7 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
         primaryHue: newState.primaryHue,
         secondaryHue: newState.secondaryHue,
         fontFamily: newState.fontFamily,
+        header: newState.header,
       };
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
     } catch (error) {
@@ -209,6 +269,22 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
     dispatch({ type: 'SET_FONT_FAMILY', fontFamily });
   }, []);
 
+  const setHeaderMain = useCallback((text: string) => {
+    dispatch({ type: 'SET_HEADER_MAIN', text });
+  }, []);
+
+  const setHeaderMainRight = useCallback((text: string) => {
+    dispatch({ type: 'SET_HEADER_MAIN_RIGHT', text });
+  }, []);
+
+  const setHeaderSub = useCallback((text: string) => {
+    dispatch({ type: 'SET_HEADER_SUB', text });
+  }, []);
+
+  const toggleSplitHeading = useCallback(() => {
+    dispatch({ type: 'TOGGLE_SPLIT_HEADING' });
+  }, []);
+
   const getCurrentFontFamilyName = useCallback(() => {
     return getFontFamilyName(state.fontFamily);
   }, [state.fontFamily]);
@@ -222,6 +298,12 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
           primaryHue: 220,
           secondaryHue: 280,
           fontFamily: 'inter',
+          header: {
+            mainHeading: '',
+            mainHeadingRight: '',
+            subheading: '',
+            splitHeading: false,
+          },
         }
       });
     } catch (error) {
@@ -236,6 +318,10 @@ export function CustomizationProvider({ children }: { children: React.ReactNode 
       setSecondaryHue,
       setColorScheme,
       setFontFamily,
+      setHeaderMain,
+      setHeaderMainRight,
+      setHeaderSub,
+      toggleSplitHeading,
       getFontFamilyName: getCurrentFontFamilyName,
       resetToDefaults,
     }}>
@@ -252,4 +338,4 @@ export function useCustomization() {
   return context;
 }
 
-export type { ColorSystem, FontFamily };
+export type { ColorSystem, FontFamily, HeaderConfig };

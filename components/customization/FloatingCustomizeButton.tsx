@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { TouchableOpacity, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useHeaderHeight } from '../Header';
 import { useCustomization } from './context/CustomizationContext';
 
 interface FloatingCustomizeButtonProps {
@@ -12,6 +13,7 @@ export function FloatingCustomizeButton({ onPress }: FloatingCustomizeButtonProp
   const { state } = useCustomization();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const headerHeight = useHeaderHeight();
 
   // Use bottom positioning for mobile, top-left for desktop
   const useBottomPosition = width < 768;
@@ -37,7 +39,10 @@ export function FloatingCustomizeButton({ onPress }: FloatingCustomizeButtonProp
       left: width / 2 - 28, // Center horizontally
     }
     : {
-      top: Math.max(insets.top, 20), // Ensure minimum 20px from edge
+      // Position below header on desktop, or at top if no header
+      top: headerHeight > 0
+        ? headerHeight + 20
+        : Math.max(insets.top, 20),
       left: Math.max(insets.left, 20), // Respect left safe area
     };
 
