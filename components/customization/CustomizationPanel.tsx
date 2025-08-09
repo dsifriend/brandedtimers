@@ -260,7 +260,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
             fontSize: 16,
             color: state.colors.text,
             fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
-            marginBottom: 12,
+            marginBottom: 4,
           }}
         />
 
@@ -272,8 +272,9 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
             justifyContent: 'space-between',
             backgroundColor: state.colors.primary,
             borderRadius: 12,
-            padding: 16,
-            marginBottom: 12,
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            marginBottom: state.header.splitHeading ? 4 : 12,
           }}
         >
           <Text style={{
@@ -287,7 +288,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
             value={state.header.splitHeading}
             onValueChange={toggleSplitHeading}
             trackColor={{ false: state.colors.textSecondary, true: state.colors.background }}
-            thumbColor={state.colors.background}
+            thumbColor={state.header.splitHeading ? state.colors.text : state.colors.background}
             //@ts-expect-error type
             activeThumbColor={state.colors.text}
           />
