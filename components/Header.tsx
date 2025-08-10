@@ -42,76 +42,71 @@ export function Header() {
       {!splitHeading && imageBase64 && image}
 
       <View style={{
+        flexDirection: 'row',
         alignItems: 'center',
+        width: '100%',
       }}>
-        {/* Main Heading */}
-        {mainHeading && (
-          <View style={{
-            flexDirection: 'row',
-            alignItems: 'center',
+        {/* Left column */}
+        <View style={{
+          flex: splitHeading ? 1 : 0,
+          alignItems: 'center',
+          paddingRight: splitHeading ? 8 : 0,
+        }}>
+          <Text style={{
+            fontSize: 36,
+            fontWeight: '600',
+            fontFamily,
+            color: state.colors.accent,
+            textAlign: 'center',
             width: '100%',
           }}>
-            {/* Left column */}
-            <View style={{
-              flex: 1,
-              alignItems: splitHeading ? 'flex-end' : 'center',
-              paddingRight: splitHeading ? 8 : 0,
-            }}>
-              <Text style={{
-                fontSize: 36,
-                fontWeight: '600',
-                fontFamily,
-                color: state.colors.accent,
-                textAlign: splitHeading ? 'right' : 'center',
-              }}>
-                {mainHeading}
-              </Text>
-            </View>
+            {mainHeading}
+          </Text>
+        </View>
 
-            {/* Center column - only when split */}
-            {splitHeading && imageBase64 && (
-              <View style={{
-                width: 144, // 128 + padding
-                alignItems: 'center',
-              }}>
-                {image}
-              </View>
-            )}
-
-            {/* Right column - only when split */}
-            {splitHeading && mainHeadingRight && (
-              <View style={{
-                flex: 1,
-                alignItems: 'flex-start',
-                paddingLeft: 8,
-              }}>
-                <Text style={{
-                  fontSize: 36,
-                  fontWeight: '600',
-                  fontFamily,
-                  color: state.colors.accent,
-                  textAlign: 'left',
-                }}>
-                  {mainHeadingRight}
-                </Text>
-              </View>
-            )}
+        {/* Center column - only when split */}
+        {splitHeading && imageBase64 && (
+          <View style={{
+            alignItems: 'center',
+            paddingHorizontal: 8,
+          }}>
+            {image}
           </View>
         )}
 
-        {/* Subheading */}
-        {subheading && (
-          <Text style={{
-            fontSize: 24,
-            fontFamily,
-            color: state.colors.textSecondary,
-            textAlign: 'center',
-            marginTop: (mainHeading || imageBase64) ? 8 : 0,
+        {/* Right column - only when split */}
+        {splitHeading && mainHeadingRight && (
+          <View style={{
+            flex: 1,
+            alignItems: 'center',
+            paddingLeft: 8,
           }}>
-            {subheading}
-          </Text>
+            <Text style={{
+              fontSize: 36,
+              fontWeight: '600',
+              fontFamily,
+              color: state.colors.accent,
+              textAlign: 'center',
+              width: '100%',
+            }}>
+              {mainHeadingRight}
+            </Text>
+          </View>
         )}
       </View>
+
+      {/* Subheading */}
+      {subheading && (
+        <Text style={{
+          fontSize: 24,
+          fontFamily,
+          color: state.colors.textSecondary,
+          textAlign: 'center',
+          marginTop: (mainHeading || imageBase64) ? 8 : 0,
+        }}>
+          {subheading}
+        </Text>
+      )}
     </View>
   );
 }
