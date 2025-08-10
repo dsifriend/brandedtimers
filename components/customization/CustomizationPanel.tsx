@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useCallback, useMemo, useRef } from 'react';
-import { Alert, Image, ScrollView, Switch, Text, TextInput, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { Alert, Image, Switch, Text, TextInput, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontFamily, useCustomization } from './context/CustomizationContext';
@@ -121,7 +122,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
 
   // Bottom sheet setup
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['25%', '90%'], []); // Increased for more content
+  const snapPoints = useMemo(() => ['25%', '85%'], []);
 
   // Sidebar animation - initialize properly based on layout
   const sidebarTranslateX = useSharedValue(useBottomSheet ? 0 : -320);
@@ -535,12 +536,11 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
         onClose={onClose}
         backgroundStyle={{ backgroundColor: state.colors.background }}
         handleIndicatorStyle={{ backgroundColor: state.colors.textSecondary }}
+        enableOverDrag={false}
       >
-        <BottomSheetView style={{ flex: 1 }}>
-          <ScrollView>
-            {renderContent()}
-          </ScrollView>
-        </BottomSheetView>
+        <BottomSheetScrollView style={{ marginBottom: insets.bottom + 8 }}>
+          {renderContent()}
+        </BottomSheetScrollView>
       </BottomSheet>
     );
   }
