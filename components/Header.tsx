@@ -5,7 +5,7 @@ import { useCustomization } from './customization/context/CustomizationContext';
 
 export function Header() {
   const { state, getFontFamilyName } = useCustomization();
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const fontFamily = getFontFamilyName();
 
@@ -20,9 +20,8 @@ export function Header() {
     <Image
       source={{ uri: `data:image/png;base64,${imageBase64}` }}
       style={{
-        width: 128,
-        height: 128,
-        borderRadius: 4,
+        width: Math.min(width, height) <= 768 ? 48 : 96,
+        height: Math.min(width, height) <= 768 ? 48 : 96,
       }}
     />
   );
