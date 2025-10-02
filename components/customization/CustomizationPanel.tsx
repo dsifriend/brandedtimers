@@ -1,14 +1,27 @@
-import { Ionicons } from '@expo/vector-icons';
-import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import * as ImageManipulator from 'expo-image-manipulator';
-import * as ImagePicker from 'expo-image-picker';
-import React, { useCallback, useMemo, useRef } from 'react';
-import { Alert, Image, Switch, Text, TextInput, TouchableOpacity, View, useWindowDimensions } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FontFamily, useCustomization } from './context/CustomizationContext';
-import { HueSlider } from './HueSlider';
+import { Ionicons } from "@expo/vector-icons";
+import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import * as ImageManipulator from "expo-image-manipulator";
+import * as ImagePicker from "expo-image-picker";
+import React, { useCallback, useMemo, useRef } from "react";
+import {
+  Alert,
+  Image,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { FontFamily, useCustomization } from "./context/CustomizationContext";
+import { HueSlider } from "./HueSlider";
 
 interface CustomizationPanelProps {
   isVisible: boolean;
@@ -19,48 +32,53 @@ interface CustomizationPanelProps {
 function FontFamilySelector({
   selectedFont,
   onFontChange,
-  colors
+  colors,
 }: {
   selectedFont: FontFamily;
   onFontChange: (font: FontFamily) => void;
   colors: any;
 }) {
   return (
-    <View style={{
-      flexDirection: 'row',
-      backgroundColor: colors.primary,
-      borderRadius: 8,
-      padding: 4,
-    }}>
+    <View
+      style={{
+        flexDirection: "row",
+        backgroundColor: colors.primary,
+        borderRadius: 8,
+        padding: 4,
+      }}
+    >
       <TouchableOpacity
         style={{
           flex: 1,
-          alignItems: 'center',
+          alignItems: "center",
           paddingVertical: 12,
           paddingHorizontal: 16,
           borderRadius: 6,
-          backgroundColor: selectedFont === 'inter' ? colors.accent : 'transparent',
+          backgroundColor:
+            selectedFont === "inter" ? colors.accent : "transparent",
         }}
-        onPress={() => onFontChange('inter')}
+        onPress={() => onFontChange("inter")}
       >
-        <Text style={{
-          fontFamily: 'Inter_400Regular',
-          fontSize: 18,
-          fontWeight: '600',
-          color: selectedFont === 'inter'
-            ? (colors.text)
-            : colors.textSecondary,
-          marginBottom: 4,
-        }}>
+        <Text
+          style={{
+            fontFamily: "Inter_400Regular",
+            fontSize: 18,
+            fontWeight: "600",
+            color:
+              selectedFont === "inter" ? colors.text : colors.textSecondary,
+            marginBottom: 4,
+          }}
+        >
           12
         </Text>
-        <Text style={{
-          fontSize: 12,
-          color: selectedFont === 'inter'
-            ? colors.text
-            : colors.textSecondary,
-          fontFamily: 'Inter_400Regular',
-        }}>
+        <Text
+          style={{
+            fontSize: 12,
+            color:
+              selectedFont === "inter" ? colors.text : colors.textSecondary,
+            fontFamily: "Inter_400Regular",
+          }}
+        >
           Sans
         </Text>
       </TouchableOpacity>
@@ -68,32 +86,39 @@ function FontFamilySelector({
       <TouchableOpacity
         style={{
           flex: 1,
-          alignItems: 'center',
+          alignItems: "center",
           paddingVertical: 12,
           paddingHorizontal: 16,
           borderRadius: 6,
-          backgroundColor: selectedFont === 'merriweather' ? colors.accent : 'transparent',
+          backgroundColor:
+            selectedFont === "merriweather" ? colors.accent : "transparent",
         }}
-        onPress={() => onFontChange('merriweather')}
+        onPress={() => onFontChange("merriweather")}
       >
-        <Text style={{
-          fontFamily: 'Merriweather_400Regular',
-          fontSize: 18,
-          fontWeight: '600',
-          color: selectedFont === 'merriweather'
-            ? colors.text
-            : colors.textSecondary,
-          marginBottom: 4,
-        }}>
+        <Text
+          style={{
+            fontFamily: "Merriweather_400Regular",
+            fontSize: 18,
+            fontWeight: "600",
+            color:
+              selectedFont === "merriweather"
+                ? colors.text
+                : colors.textSecondary,
+            marginBottom: 4,
+          }}
+        >
           12
         </Text>
-        <Text style={{
-          fontSize: 12,
-          color: selectedFont === 'merriweather'
-            ? colors.text
-            : colors.textSecondary,
-          fontFamily: 'Inter_400Regular',
-        }}>
+        <Text
+          style={{
+            fontSize: 12,
+            color:
+              selectedFont === "merriweather"
+                ? colors.text
+                : colors.textSecondary,
+            fontFamily: "Inter_400Regular",
+          }}
+        >
           Serif
         </Text>
       </TouchableOpacity>
@@ -101,7 +126,10 @@ function FontFamilySelector({
   );
 }
 
-export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelProps) {
+export function CustomizationPanel({
+  isVisible,
+  onClose,
+}: CustomizationPanelProps) {
   const {
     state,
     setPrimaryHue,
@@ -112,7 +140,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
     setHeaderMainRight,
     setHeaderSub,
     setHeaderImage,
-    toggleSplitHeading
+    toggleSplitHeading,
   } = useCustomization();
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -122,7 +150,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
 
   // Bottom sheet setup
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['25%', '85%'], []);
+  const snapPoints = useMemo(() => ["25%", "85%"], []);
 
   // Sidebar animation - initialize properly based on layout
   const sidebarTranslateX = useSharedValue(useBottomSheet ? 0 : -320);
@@ -171,7 +199,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
   });
 
   const toggleColorScheme = useCallback(() => {
-    setColorScheme(state.colorScheme === 'dark' ? 'light' : 'dark');
+    setColorScheme(state.colorScheme === "dark" ? "light" : "dark");
   }, [state.colorScheme, setColorScheme]);
 
   const handlePickImage = useCallback(async () => {
@@ -188,40 +216,55 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
         const manipulated = await ImageManipulator.manipulateAsync(
           result.assets[0].uri,
           [{ resize: { width: 256, height: 256 } }],
-          { compress: 0.8, format: ImageManipulator.SaveFormat.PNG, base64: true }
+          {
+            compress: 0.8,
+            format: ImageManipulator.SaveFormat.PNG,
+            base64: true,
+          },
         );
 
         setHeaderImage(manipulated.base64 || null);
       }
     } catch {
-      Alert.alert('Error', 'Failed to pick image');
+      Alert.alert("Error", "Failed to pick image");
     }
   }, [setHeaderImage]);
 
   const handleRemoveImage = useCallback(() => {
     setHeaderImage(null);
-  }, [setHeaderImage]);
+    setHeaderMainRight("");
+    toggleSplitHeading();
+  }, [setHeaderImage, setHeaderMainRight, toggleSplitHeading]);
 
   const renderContent = () => (
-    <View style={{
-      flex: 1,
-      padding: 20,
-      marginLeft: useBottomSheet ? 0 : insets.left,
-      backgroundColor: state.colors.background,
-    }}>
+    <View
+      style={{
+        flex: 1,
+        padding: 20,
+        marginLeft: useBottomSheet ? 0 : insets.left,
+        backgroundColor: state.colors.background,
+      }}
+    >
       {/* Header */}
-      <View style={{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 30,
-      }}>
-        <Text style={{
-          fontSize: 24,
-          fontWeight: '600',
-          color: state.colors.text,
-          fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
-        }}>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 30,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 24,
+            fontWeight: "600",
+            color: state.colors.text,
+            fontFamily:
+              state.fontFamily === "inter"
+                ? "Inter_400Regular"
+                : "Merriweather_400Regular",
+          }}
+        >
           Customize
         </Text>
         <TouchableOpacity
@@ -238,13 +281,18 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
 
       {/* Header Text Section */}
       <View style={{ marginBottom: 30 }}>
-        <Text style={{
-          fontSize: 16,
-          fontWeight: '500',
-          color: state.colors.text,
-          marginBottom: 12,
-          fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
-        }}>
+        <Text
+          style={{
+            fontSize: 16,
+            fontWeight: "500",
+            color: state.colors.text,
+            marginBottom: 12,
+            fontFamily:
+              state.fontFamily === "inter"
+                ? "Inter_400Regular"
+                : "Merriweather_400Regular",
+          }}
+        >
           Header Text
         </Text>
 
@@ -260,7 +308,10 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
             padding: 16,
             fontSize: 16,
             color: state.colors.text,
-            fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
+            fontFamily:
+              state.fontFamily === "inter"
+                ? "Inter_400Regular"
+                : "Merriweather_400Regular",
             marginBottom: 4,
           }}
         />
@@ -318,7 +369,10 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
               padding: 16,
               fontSize: 16,
               color: state.colors.text,
-              fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
+              fontFamily:
+                state.fontFamily === "inter"
+                  ? "Inter_400Regular"
+                  : "Merriweather_400Regular",
               marginBottom: 12,
             }}
           />
@@ -336,7 +390,10 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
             padding: 16,
             fontSize: 16,
             color: state.colors.text,
-            fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
+            fontFamily:
+              state.fontFamily === "inter"
+                ? "Inter_400Regular"
+                : "Merriweather_400Regular",
             marginBottom: 12,
           }}
         />
@@ -344,16 +401,20 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
         {/* Image Picker */}
         <View style={{ marginBottom: 12 }}>
           {state.header.imageBase64 ? (
-            <View style={{
-              backgroundColor: state.colors.primary,
-              borderRadius: 12,
-              padding: 16,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-around',
-            }}>
+            <View
+              style={{
+                backgroundColor: state.colors.primary,
+                borderRadius: 12,
+                padding: 16,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-around",
+              }}
+            >
               <Image
-                source={{ uri: `data:image/png;base64,${state.header.imageBase64}` }}
+                source={{
+                  uri: `data:image/png;base64,${state.header.imageBase64}`,
+                }}
                 style={{
                   width: 128,
                   height: 128,
@@ -363,18 +424,14 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
               <TouchableOpacity
                 onPress={handleRemoveImage}
                 style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  alignItems: "center",
+                  justifyContent: "center",
                   backgroundColor: state.colors.accent,
                   borderRadius: 50,
                   padding: 8,
                 }}
               >
-                <Ionicons
-                  name='close'
-                  size={24}
-                  color={state.colors.text}
-                />
+                <Ionicons name="close" size={24} color={state.colors.text} />
               </TouchableOpacity>
             </View>
           ) : (
@@ -384,9 +441,9 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
                 backgroundColor: state.colors.primary,
                 borderRadius: 12,
                 padding: 16,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
               <Ionicons
@@ -395,11 +452,16 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
                 color={state.colors.text}
                 style={{ marginRight: 8 }}
               />
-              <Text style={{
-                color: state.colors.text,
-                fontSize: 16,
-                fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
-              }}>
+              <Text
+                style={{
+                  color: state.colors.text,
+                  fontSize: 16,
+                  fontFamily:
+                    state.fontFamily === "inter"
+                      ? "Inter_400Regular"
+                      : "Merriweather_400Regular",
+                }}
+              >
                 Add Logo
               </Text>
             </TouchableOpacity>
@@ -409,38 +471,48 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
 
       {/* Color Scheme Toggle */}
       <View style={{ marginBottom: 30 }}>
-        <Text style={{
-          fontSize: 16,
-          fontWeight: '500',
-          color: state.colors.text,
-          marginBottom: 12,
-          fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
-        }}>
+        <Text
+          style={{
+            fontSize: 16,
+            fontWeight: "500",
+            color: state.colors.text,
+            marginBottom: 12,
+            fontFamily:
+              state.fontFamily === "inter"
+                ? "Inter_400Regular"
+                : "Merriweather_400Regular",
+          }}
+        >
           Appearance
         </Text>
         <TouchableOpacity
           onPress={toggleColorScheme}
           style={{
-            flexDirection: 'row',
-            alignItems: 'center',
+            flexDirection: "row",
+            alignItems: "center",
             padding: 16,
             backgroundColor: state.colors.primary,
             borderRadius: 12,
           }}
         >
           <Ionicons
-            name={state.colorScheme === 'dark' ? 'moon' : 'sunny'}
+            name={state.colorScheme === "dark" ? "moon" : "sunny"}
             size={20}
             color={state.colors.text}
             style={{ marginRight: 12 }}
           />
-          <Text style={{
-            fontSize: 16,
-            color: state.colors.text,
-            flex: 1,
-            fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
-          }}>
-            {state.colorScheme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+          <Text
+            style={{
+              fontSize: 16,
+              color: state.colors.text,
+              flex: 1,
+              fontFamily:
+                state.fontFamily === "inter"
+                  ? "Inter_400Regular"
+                  : "Merriweather_400Regular",
+            }}
+          >
+            {state.colorScheme === "dark" ? "Dark Mode" : "Light Mode"}
           </Text>
           <Ionicons
             name="chevron-forward"
@@ -452,13 +524,18 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
 
       {/* Font Family Selection */}
       <View style={{ marginBottom: 30 }}>
-        <Text style={{
-          fontSize: 16,
-          fontWeight: '500',
-          color: state.colors.text,
-          marginBottom: 12,
-          fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
-        }}>
+        <Text
+          style={{
+            fontSize: 16,
+            fontWeight: "500",
+            color: state.colors.text,
+            marginBottom: 12,
+            fontFamily:
+              state.fontFamily === "inter"
+                ? "Inter_400Regular"
+                : "Merriweather_400Regular",
+          }}
+        >
           Font Family
         </Text>
         <FontFamilySelector
@@ -470,28 +547,37 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
 
       {/* Primary Color */}
       <View style={{ marginBottom: 30 }}>
-        <Text style={{
-          fontSize: 16,
-          fontWeight: '500',
-          color: state.colors.text,
-          marginBottom: 12,
-          fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
-        }}>
+        <Text
+          style={{
+            fontSize: 16,
+            fontWeight: "500",
+            color: state.colors.text,
+            marginBottom: 12,
+            fontFamily:
+              state.fontFamily === "inter"
+                ? "Inter_400Regular"
+                : "Merriweather_400Regular",
+          }}
+        >
           Primary Color
         </Text>
-        <View style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 16,
-        }}>
-          <View style={{
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            backgroundColor: state.colors.primary,
-            borderWidth: 2,
-            borderColor: state.colors.textSecondary,
-          }} />
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 16,
+          }}
+        >
+          <View
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: state.colors.primary,
+              borderWidth: 2,
+              borderColor: state.colors.textSecondary,
+            }}
+          />
           <HueSlider
             value={state.primaryHue}
             onValueChange={setPrimaryHue}
@@ -502,28 +588,37 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
 
       {/* Secondary Color */}
       <View style={{ marginBottom: 30 }}>
-        <Text style={{
-          fontSize: 16,
-          fontWeight: '500',
-          color: state.colors.text,
-          marginBottom: 12,
-          fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
-        }}>
+        <Text
+          style={{
+            fontSize: 16,
+            fontWeight: "500",
+            color: state.colors.text,
+            marginBottom: 12,
+            fontFamily:
+              state.fontFamily === "inter"
+                ? "Inter_400Regular"
+                : "Merriweather_400Regular",
+          }}
+        >
           Accent Color
         </Text>
-        <View style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 16,
-        }}>
-          <View style={{
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            backgroundColor: state.colors.accent,
-            borderWidth: 2,
-            borderColor: state.colors.textSecondary,
-          }} />
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 16,
+          }}
+        >
+          <View
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: state.colors.accent,
+              borderWidth: 2,
+              borderColor: state.colors.textSecondary,
+            }}
+          />
           <HueSlider
             value={state.secondaryHue}
             onValueChange={setSecondaryHue}
@@ -560,12 +655,12 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
       {isVisible && (
         <TouchableOpacity
           style={{
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
+            backgroundColor: "rgba(0,0,0,0.5)",
             zIndex: 999,
           }}
           onPress={onClose}
@@ -577,7 +672,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
       <Animated.View
         style={[
           {
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
             width: 320,
@@ -591,9 +686,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
           sidebarStyle,
         ]}
       >
-        <ScrollView>
-          {renderContent()}
-        </ScrollView>
+        <ScrollView>{renderContent()}</ScrollView>
       </Animated.View>
     </>
   );
