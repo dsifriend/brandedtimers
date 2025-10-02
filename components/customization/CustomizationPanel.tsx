@@ -483,7 +483,7 @@ export function CustomizationPanel({
                 : "Merriweather_400Regular",
           }}
         >
-          Appearance
+          Background / Screen Type
         </Text>
         <TouchableOpacity
           onPress={toggleColorScheme}
@@ -512,7 +512,9 @@ export function CustomizationPanel({
                   : "Merriweather_400Regular",
             }}
           >
-            {state.colorScheme === "dark" ? "Dark Mode" : "Light Mode"}
+            {state.colorScheme === "dark"
+              ? "Dark / Backlit"
+              : "Light / Projector"}
           </Text>
         </TouchableOpacity>
       </View>
