@@ -138,7 +138,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
       // Ensure sidebar starts in correct position
       sidebarTranslateX.value = isVisible ? 0 : -320;
     }
-  }, []); // Run once on mount
+  }); // Run once on mount
 
   // Handle visibility changes
   React.useEffect(() => {
@@ -193,7 +193,7 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
 
         setHeaderImage(manipulated.base64 || null);
       }
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to pick image');
     }
   }, [setHeaderImage]);
@@ -265,35 +265,45 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
           }}
         />
 
-        {/* Split Heading Toggle */}
-        <TouchableOpacity
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            backgroundColor: state.colors.primary,
-            borderRadius: 12,
-            paddingHorizontal: 16,
-            paddingVertical: 8,
-            marginBottom: state.header.splitHeading ? 4 : 12,
-          }}
-        >
-          <Text style={{
-            fontSize: 16,
-            color: state.colors.text,
-            fontFamily: state.fontFamily === 'inter' ? 'Inter_400Regular' : 'Merriweather_400Regular',
-          }}>
-            Split Heading
-          </Text>
-          <Switch
-            value={state.header.splitHeading}
-            onValueChange={toggleSplitHeading}
-            trackColor={{ false: state.colors.textSecondary, true: state.colors.background }}
-            thumbColor={state.header.splitHeading ? state.colors.text : state.colors.background}
-            //@ts-expect-error type
-            activeThumbColor={state.colors.text}
-          />
-        </TouchableOpacity>
+        {/* Split Heading Toggle, only available if image present */}
+        {state.header.imageBase64 && (
+          <TouchableOpacity
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              backgroundColor: state.colors.primary,
+              borderRadius: 12,
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              marginBottom: state.header.splitHeading ? 4 : 12,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 16,
+                color: state.colors.text,
+                fontFamily:
+                  state.fontFamily === "inter"
+                    ? "Inter_400Regular"
+                    : "Merriweather_400Regular",
+              }}
+            >
+              Split Heading
+            </Text>
+            <Switch
+              value={state.header.splitHeading}
+              onValueChange={toggleSplitHeading}
+              trackColor={{
+                false: state.colors.background,
+                true: state.colors.background,
+              }}
+              thumbColor={state.colors.text}
+              //@ts-expect-error type
+              activeThumbColor={state.colors.text}
+            />
+          </TouchableOpacity>
+        )}
 
         {/* Right Half of Main Heading (conditional) */}
         {state.header.splitHeading && (
@@ -355,11 +365,9 @@ export function CustomizationPanel({ isVisible, onClose }: CustomizationPanelPro
                 style={{
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: state.colors.secondary,
+                  backgroundColor: state.colors.accent,
                   borderRadius: 50,
-                  padding: 24,
-                  width: 16,
-                  height: 16,
+                  padding: 8,
                 }}
               >
                 <Ionicons
