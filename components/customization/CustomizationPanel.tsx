@@ -136,6 +136,8 @@ export function CustomizationPanel({
     setSecondaryHue,
     setColorScheme,
     setFontFamily,
+    setBWPrimary,
+    setBWSecondary,
     setHeaderMain,
     setHeaderMainRight,
     setHeaderSub,
@@ -565,21 +567,33 @@ export function CustomizationPanel({
             gap: 16,
           }}
         >
-          <View
+          {/* B&W Circle */}
+          <TouchableOpacity
+            onPress={() => setBWPrimary(true)}
             style={{
               width: 40,
               height: 40,
               borderRadius: 20,
-              backgroundColor: state.colors.primary,
+              backgroundColor: state.colorScheme === "dark" ? "#000" : "#fff",
               borderWidth: 2,
-              borderColor: state.colors.textSecondary,
+              borderColor: state.useBWPrimary
+                ? state.colors.text
+                : state.colors.textSecondary,
             }}
           />
-          <HueSlider
-            value={state.primaryHue}
-            onValueChange={setPrimaryHue}
-            style={{ flex: 1 }}
-          />
+
+          {/* Hue Slider with interactive thumb */}
+          <View style={{ flex: 1, opacity: state.useBWPrimary ? 0.3 : 1 }}>
+            <HueSlider
+              value={state.primaryHue}
+              onValueChange={setPrimaryHue}
+              onThumbPress={() => setBWPrimary(false)}
+              colorScheme={state.colorScheme}
+              saturationMultiplier={state.useBWPrimary ? 0 : 1}
+              isAccent={false}
+              style={{ flex: 1 }}
+            />
+          </View>
         </View>
       </View>
 
@@ -606,21 +620,34 @@ export function CustomizationPanel({
             gap: 16,
           }}
         >
-          <View
+          {/* B&W Circle */}
+          <TouchableOpacity
+            onPress={() => setBWSecondary(true)}
             style={{
               width: 40,
               height: 40,
               borderRadius: 20,
-              backgroundColor: state.colors.accent,
+              backgroundColor:
+                state.colorScheme === "dark" ? "#4d4d4d" : "#b3b3b3",
               borderWidth: 2,
-              borderColor: state.colors.textSecondary,
+              borderColor: state.useBWSecondary
+                ? state.colors.text
+                : state.colors.textSecondary,
             }}
           />
-          <HueSlider
-            value={state.secondaryHue}
-            onValueChange={setSecondaryHue}
-            style={{ flex: 1 }}
-          />
+
+          {/* Hue Slider with interactive thumb */}
+          <View style={{ flex: 1, opacity: state.useBWSecondary ? 0.3 : 1 }}>
+            <HueSlider
+              value={state.secondaryHue}
+              onValueChange={setSecondaryHue}
+              onThumbPress={() => setBWSecondary(false)}
+              colorScheme={state.colorScheme}
+              saturationMultiplier={state.useBWSecondary ? 0 : 1}
+              isAccent={true}
+              style={{ flex: 1 }}
+            />
+          </View>
         </View>
       </View>
     </View>

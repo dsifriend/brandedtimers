@@ -32,6 +32,8 @@ interface CustomizationState {
   colorScheme: ColorSchemeName;
   primaryHue: number;
   secondaryHue: number;
+  useBWPrimary: boolean;
+  useBWSecondary: boolean;
   fontFamily: FontFamily;
   colors: ColorSystem;
   header: HeaderConfig;
@@ -42,6 +44,8 @@ type CustomizationAction =
   | { type: "SET_COLOR_SCHEME"; scheme: ColorSchemeName }
   | { type: "SET_PRIMARY_HUE"; hue: number }
   | { type: "SET_SECONDARY_HUE"; hue: number }
+  | { type: "SET_BW_PRIMARY"; useBW: boolean }
+  | { type: "SET_BW_SECONDARY"; useBW: boolean }
   | { type: "SET_FONT_FAMILY"; fontFamily: FontFamily }
   | { type: "SET_LOADING"; loading: boolean }
   | { type: "SET_HEADER_MAIN"; text: string }
@@ -56,21 +60,71 @@ const generateColors = (
   primaryHue: number,
   secondaryHue: number,
   scheme: ColorSchemeName,
+  useBWPrimary: boolean = false,
+  useBWSecondary: boolean = false,
 ): ColorSystem => {
   const presets = scheme === "dark" ? ColorPresets.dark : ColorPresets.light;
 
   return {
-    // Primary surfaces use the primary hue
-    primary: toReactNativeColor(presets.surfacePrimary(primaryHue)),
-    background: toReactNativeColor(presets.backgroundPrimary(primaryHue)),
+    // Primary surfaces - use B&W if enabled
+    primary: toReactNativeColor(
+      useBWPrimary
+        ? {
+            hue: primaryHue,
+            saturation: 0,
+            lightness: scheme === "dark" ? 10 : 90,
+          }
+        : presets.surfacePrimary(primaryHue),
+    ),
+    background: toReactNativeColor(
+      useBWPrimary
+        ? {
+            hue: primaryHue,
+            saturation: 0,
+            lightness: scheme === "dark" ? 0 : 100,
+          }
+        : presets.backgroundPrimary(primaryHue),
+    ),
 
-    // Secondary/accent colors use the secondary hue
-    secondary: toReactNativeColor(presets.accentSecondary(secondaryHue)),
-    accent: toReactNativeColor(presets.accentPrimary(secondaryHue)),
+    // Secondary/accent colors - use theme-appropriate grays if B&W enabled
+    secondary: toReactNativeColor(
+      useBWSecondary
+        ? {
+            hue: secondaryHue,
+            saturation: 0,
+            lightness: scheme === "dark" ? 60 : 20,
+          }
+        : presets.accentSecondary(secondaryHue),
+    ),
+    accent: toReactNativeColor(
+      useBWSecondary
+        ? {
+            hue: secondaryHue,
+            saturation: 0,
+            lightness: scheme === "dark" ? 90 : 10,
+          }
+        : presets.accentPrimary(secondaryHue),
+    ),
 
-    // Text colors use primary hue for consistency
-    text: toReactNativeColor(presets.textPrimary(primaryHue)),
-    textSecondary: toReactNativeColor(presets.textSecondary(primaryHue)),
+    // Text colors - use primary hue for consistency
+    text: toReactNativeColor(
+      useBWPrimary
+        ? {
+            hue: primaryHue,
+            saturation: 0,
+            lightness: scheme === "dark" ? 100 : 0,
+          }
+        : presets.textPrimary(primaryHue),
+    ),
+    textSecondary: toReactNativeColor(
+      useBWPrimary
+        ? {
+            hue: primaryHue,
+            saturation: 0,
+            lightness: scheme === "dark" ? 70 : 30,
+          }
+        : presets.textSecondary(primaryHue),
+    ),
   };
 };
 
@@ -90,8 +144,16 @@ const initialState: CustomizationState = {
   colorScheme: Appearance.getColorScheme() || "dark",
   primaryHue: 220, // Default blue
   secondaryHue: 280, // Default purple
+  useBWPrimary: false,
+  useBWSecondary: false,
   fontFamily: "inter", // Default font
-  colors: generateColors(220, 280, Appearance.getColorScheme() || "dark"),
+  colors: generateColors(
+    220,
+    280,
+    Appearance.getColorScheme() || "dark",
+    false,
+    false,
+  ),
   header: {
     mainHeading: "",
     mainHeadingRight: "",
@@ -112,6 +174,8 @@ function customizationReducer(
         state.primaryHue,
         state.secondaryHue,
         action.scheme,
+        state.useBWPrimary,
+        state.useBWSecondary,
       );
       return {
         ...state,
@@ -125,6 +189,8 @@ function customizationReducer(
         action.hue,
         state.secondaryHue,
         state.colorScheme,
+        state.useBWPrimary,
+        state.useBWSecondary,
       );
       return {
         ...state,
@@ -138,10 +204,42 @@ function customizationReducer(
         state.primaryHue,
         action.hue,
         state.colorScheme,
+        state.useBWPrimary,
+        state.useBWSecondary,
       );
       return {
         ...state,
         secondaryHue: action.hue,
+        colors: newColors,
+      };
+    }
+
+    case "SET_BW_PRIMARY": {
+      const newColors = generateColors(
+        state.primaryHue,
+        state.secondaryHue,
+        state.colorScheme,
+        action.useBW,
+        state.useBWSecondary,
+      );
+      return {
+        ...state,
+        useBWPrimary: action.useBW,
+        colors: newColors,
+      };
+    }
+
+    case "SET_BW_SECONDARY": {
+      const newColors = generateColors(
+        state.primaryHue,
+        state.secondaryHue,
+        state.colorScheme,
+        state.useBWPrimary,
+        action.useBW,
+      );
+      return {
+        ...state,
+        useBWSecondary: action.useBW,
         colors: newColors,
       };
     }
@@ -214,6 +312,8 @@ function customizationReducer(
           restoredState.primaryHue,
           restoredState.secondaryHue,
           restoredState.colorScheme,
+          restoredState.useBWPrimary,
+          restoredState.useBWSecondary,
         ),
       };
     }
@@ -229,6 +329,8 @@ interface CustomizationContextValue {
   setSecondaryHue: (hue: number) => void;
   setColorScheme: (scheme: ColorSchemeName) => void;
   setFontFamily: (fontFamily: FontFamily) => void;
+  setBWPrimary: (useBW: boolean) => void;
+  setBWSecondary: (useBW: boolean) => void;
   setHeaderMain: (text: string) => void;
   setHeaderMainRight: (text: string) => void;
   setHeaderSub: (text: string) => void;
@@ -258,6 +360,8 @@ export function CustomizationProvider({
         colorScheme: newState.colorScheme,
         primaryHue: newState.primaryHue,
         secondaryHue: newState.secondaryHue,
+        useBWPrimary: newState.useBWPrimary,
+        useBWSecondary: newState.useBWSecondary,
         fontFamily: newState.fontFamily,
         header: newState.header,
       };
@@ -318,6 +422,14 @@ export function CustomizationProvider({
     dispatch({ type: "SET_FONT_FAMILY", fontFamily });
   }, []);
 
+  const setBWPrimary = useCallback((useBW: boolean) => {
+    dispatch({ type: "SET_BW_PRIMARY", useBW });
+  }, []);
+
+  const setBWSecondary = useCallback((useBW: boolean) => {
+    dispatch({ type: "SET_BW_SECONDARY", useBW });
+  }, []);
+
   const setHeaderMain = useCallback((text: string) => {
     dispatch({ type: "SET_HEADER_MAIN", text });
   }, []);
@@ -351,6 +463,8 @@ export function CustomizationProvider({
           colorScheme: "dark",
           primaryHue: 220,
           secondaryHue: 280,
+          useBWPrimary: false,
+          useBWSecondary: false,
           fontFamily: "inter",
           header: {
             mainHeading: "",
@@ -374,6 +488,8 @@ export function CustomizationProvider({
         setSecondaryHue,
         setColorScheme,
         setFontFamily,
+        setBWPrimary,
+        setBWSecondary,
         setHeaderMain,
         setHeaderMainRight,
         setHeaderSub,

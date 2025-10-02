@@ -44,16 +44,16 @@ export const ColorPresets = {
   // Dark theme colors
   dark: {
     // Backgrounds - dark with subtle color
-    backgroundPrimary: (hue: number) => hsl(hue, 15, 15),
-    backgroundSecondary: (hue: number) => hsl(hue, 20, 25),
+    backgroundPrimary: (hue: number) => hsl(hue, 30, 15),
+    backgroundSecondary: (hue: number) => hsl(hue, 30, 25),
 
     // Surfaces - slightly lighter than backgrounds
-    surfacePrimary: (hue: number) => hsl(hue, 20, 22),
-    surfaceSecondary: (hue: number) => hsl(hue, 25, 28),
+    surfacePrimary: (hue: number) => hsl(hue, 30, 22),
+    surfaceSecondary: (hue: number) => hsl(hue, 30, 28),
 
     // Accents - vibrant colors for buttons/highlights
-    accentPrimary: (hue: number) => hsl(hue, 70, 65),
-    accentSecondary: (hue: number) => hsl(hue, 60, 50),
+    accentPrimary: (hue: number) => hsl(hue, 70, 50),
+    accentSecondary: (hue: number) => hsl(hue, 60, 45),
 
     // Text colors - bright with subtle tint
     textPrimary: (hue: number) => hsl(hue, 10, 95),
@@ -72,8 +72,8 @@ export const ColorPresets = {
     surfaceSecondary: (hue: number) => hsl(hue, 20, 88),
 
     // Accents - same as dark theme for consistency
-    accentPrimary: (hue: number) => hsl(hue, 70, 65),
-    accentSecondary: (hue: number) => hsl(hue, 60, 50),
+    accentPrimary: (hue: number) => hsl(hue, 70, 50),
+    accentSecondary: (hue: number) => hsl(hue, 60, 45),
 
     // Text colors - dark with color tint
     textPrimary: (hue: number) => hsl(hue, 15, 20),
