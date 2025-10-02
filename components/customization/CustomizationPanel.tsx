@@ -233,7 +233,7 @@ export function CustomizationPanel({
   const handleRemoveImage = useCallback(() => {
     setHeaderImage(null);
     setHeaderMainRight("");
-    toggleSplitHeading();
+    toggleSplitHeading(false);
   }, [setHeaderImage, setHeaderMainRight, toggleSplitHeading]);
 
   const renderContent = () => (
@@ -496,7 +496,7 @@ export function CustomizationPanel({
           }}
         >
           <Ionicons
-            name={state.colorScheme === "dark" ? "moon" : "sunny"}
+            name="bulb-outline"
             size={20}
             color={state.colors.text}
             style={{ marginRight: 12 }}
@@ -514,11 +514,6 @@ export function CustomizationPanel({
           >
             {state.colorScheme === "dark" ? "Dark Mode" : "Light Mode"}
           </Text>
-          <Ionicons
-            name="chevron-forward"
-            size={20}
-            color={state.colors.textSecondary}
-          />
         </TouchableOpacity>
       </View>
 
