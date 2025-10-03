@@ -101,7 +101,7 @@ const generateColors = (
         ? {
             hue: secondaryHue,
             saturation: 0,
-            lightness: scheme === "dark" ? 90 : 10,
+            lightness: scheme === "dark" ? 35 : 65,
           }
         : presets.accentPrimary(secondaryHue),
     ),

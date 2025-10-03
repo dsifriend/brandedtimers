@@ -10,7 +10,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { ColorPresets, toReactNativeColor } from "@/utils/colorUtils";
+import { ColorPresets, hsl, toReactNativeColor } from "@/utils/colorUtils";
 
 interface HueSliderProps {
   value: number; // 0-360
@@ -112,18 +112,16 @@ export function HueSlider({
   // Generate thumb color based on current hue and settings
   const presets = ColorPresets[colorScheme];
   const thumbColorHSL = isAccent
-    ? presets.accentPrimary(value, saturationMultiplier)
-    : presets.surfacePrimary(value, saturationMultiplier);
+    ? presets.accentPrimary(value)
+    : presets.surfacePrimary(value);
   const thumbColor = toReactNativeColor(thumbColorHSL);
 
-  // Generate realistic gradient colors for track
+  // Generate realistic gradient colors for track (with boosted saturation for visibility)
   const gradientColors = Array.from({ length: 13 }, (_, i) => {
     const hue = (i * 30) % 360; // 0, 30, 60, ..., 360
-    const colorHSL = isAccent
-      ? presets.accentPrimary(hue, saturationMultiplier)
-      : presets.surfacePrimary(hue, saturationMultiplier);
+    const colorHSL = isAccent ? presets.accentPrimary(hue) : hsl(hue, 50, 50);
     return toReactNativeColor(colorHSL);
-  }) as readonly [string, string, ...string[]];
+  });
 
   return (
     <GestureDetector gesture={composedGesture}>
@@ -141,7 +139,7 @@ export function HueSlider({
       >
         {/* Gradient Track */}
         <LinearGradient
-          colors={gradientColors}
+          colors={gradientColors as any}
           start={{ x: 0, y: 0.5 }}
           end={{ x: 1, y: 0.5 }}
           style={{
