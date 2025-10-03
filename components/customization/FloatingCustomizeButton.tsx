@@ -1,14 +1,16 @@
-import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
-import { TouchableOpacity, useWindowDimensions } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useCustomization } from './context/CustomizationContext';
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import { TouchableOpacity, useWindowDimensions } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useCustomization } from "./context/CustomizationContext";
 
 interface FloatingCustomizeButtonProps {
   onPress: () => void;
 }
 
-export function FloatingCustomizeButton({ onPress }: FloatingCustomizeButtonProps) {
+export function FloatingCustomizeButton({
+  onPress,
+}: FloatingCustomizeButtonProps) {
   const { state } = useCustomization();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -17,29 +19,26 @@ export function FloatingCustomizeButton({ onPress }: FloatingCustomizeButtonProp
   const useBottomPosition = width < 768;
 
   const baseStyle = {
-    position: 'absolute' as const,
+    position: "absolute" as const,
     padding: 12,
     borderRadius: 28,
     backgroundColor: state.colors.primary,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    justifyContent: "center" as const,
+    alignItems: "center" as const,
+    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.3)",
     elevation: 8,
     zIndex: 100,
   };
 
   const positionStyle = useBottomPosition
     ? {
-      bottom: Math.max(insets.bottom, 20), // Ensure minimum 20px from edge
-      left: width / 2 - 28, // Center horizontally
-    }
+        bottom: Math.max(insets.bottom, 20), // Ensure minimum 20px from edge
+        left: width / 2 - 28, // Center horizontally
+      }
     : {
-      top: Math.max(insets.top, 20),
-      left: Math.max(insets.left, 20), // Respect left safe area
-    };
+        top: Math.max(insets.top, 20),
+        left: Math.max(insets.left, 20), // Respect left safe area
+      };
 
   return (
     <TouchableOpacity
@@ -47,11 +46,7 @@ export function FloatingCustomizeButton({ onPress }: FloatingCustomizeButtonProp
       onPress={onPress}
       activeOpacity={0.8}
     >
-      <Ionicons
-        name="color-palette"
-        size={24}
-        color={state.colors.text}
-      />
+      <Ionicons name="color-palette" size={24} color={state.colors.text} />
     </TouchableOpacity>
   );
 }
