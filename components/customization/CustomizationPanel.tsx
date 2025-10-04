@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useState, useCallback, useMemo, useRef } from "react";
 import {
   Alert,
   Image,
@@ -22,6 +22,7 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FontFamily, useCustomization } from "./context/CustomizationContext";
 import { HueSlider } from "./HueSlider";
+import { ImageCropModal } from "./ImageCropModal";
 
 interface CustomizationPanelProps {
   isVisible: boolean;
@@ -147,6 +148,9 @@ export function CustomizationPanel({
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
+  const [cropModalVisible, setCropModalVisible] = useState(false);
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+
   // Determine if we should use bottom sheet or sidebar
   const useBottomSheet = width < 768;
 
@@ -208,15 +212,61 @@ export function CustomizationPanel({
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
+        allowsEditing: false,
+        quality: 1,
       });
 
       if (!result.canceled && result.assets[0]) {
-        // Resize to 256x256 and convert to base64
+        const asset = result.assets[0];
+
+        // Check if image is nearly square (within 1/32 threshold)
+        const aspectRatio = asset.width / asset.height;
+        const isNearlySquare = Math.abs(aspectRatio - 1) < 1 / 32;
+
+        if (isNearlySquare) {
+          // Image is close enough to square, process directly
+          const manipulated = await ImageManipulator.manipulateAsync(
+            asset.uri,
+            [{ resize: { width: 256, height: 256 } }],
+            {
+              compress: 0.8,
+              format: ImageManipulator.SaveFormat.PNG,
+              base64: true,
+            },
+          );
+          setHeaderImage(manipulated.base64 || null);
+        } else {
+          // Image needs cropping - show crop modal
+          setSelectedImageUri(asset.uri);
+          setCropModalVisible(true);
+        }
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to pick image");
+    }
+  }, [setHeaderImage]);
+
+  // Crop handlers
+  const handleCropComplete = useCallback(
+    async (cropData: {
+      originX: number;
+      originY: number;
+      width: number;
+      height: number;
+    }) => {
+      if (!selectedImageUri) return;
+
+      try {
+        // First crop to square
+        const cropped = await ImageManipulator.manipulateAsync(
+          selectedImageUri,
+          [{ crop: cropData }],
+          { compress: 1, format: ImageManipulator.SaveFormat.PNG },
+        );
+
+        // Then resize to 256x256 and get base64
         const manipulated = await ImageManipulator.manipulateAsync(
-          result.assets[0].uri,
+          cropped.uri,
           [{ resize: { width: 256, height: 256 } }],
           {
             compress: 0.8,
@@ -226,11 +276,20 @@ export function CustomizationPanel({
         );
 
         setHeaderImage(manipulated.base64 || null);
+        setCropModalVisible(false);
+        setSelectedImageUri(null);
+      } catch (error) {
+        Alert.alert("Error", "Failed to crop image");
+        setCropModalVisible(false);
       }
-    } catch {
-      Alert.alert("Error", "Failed to pick image");
-    }
-  }, [setHeaderImage]);
+    },
+    [selectedImageUri, setHeaderImage],
+  );
+
+  const handleCropCancel = useCallback(() => {
+    setCropModalVisible(false);
+    setSelectedImageUri(null);
+  }, []);
 
   const handleRemoveImage = useCallback(() => {
     setHeaderImage(null);
@@ -655,20 +714,32 @@ export function CustomizationPanel({
 
   if (useBottomSheet) {
     return (
-      <BottomSheet
-        ref={bottomSheetRef}
-        snapPoints={snapPoints}
-        index={-1} // Start closed
-        enablePanDownToClose
-        onClose={onClose}
-        backgroundStyle={{ backgroundColor: state.colors.background }}
-        handleIndicatorStyle={{ backgroundColor: state.colors.textSecondary }}
-        enableOverDrag={false}
-      >
-        <BottomSheetScrollView style={{ marginBottom: insets.bottom + 8 }}>
-          {renderContent()}
-        </BottomSheetScrollView>
-      </BottomSheet>
+      <>
+        <BottomSheet
+          ref={bottomSheetRef}
+          snapPoints={snapPoints}
+          index={-1} // Start closed
+          enablePanDownToClose
+          onClose={onClose}
+          backgroundStyle={{ backgroundColor: state.colors.background }}
+          handleIndicatorStyle={{ backgroundColor: state.colors.textSecondary }}
+          enableOverDrag={false}
+        >
+          <BottomSheetScrollView style={{ marginBottom: insets.bottom + 8 }}>
+            {renderContent()}
+          </BottomSheetScrollView>
+        </BottomSheet>
+
+        {/* Crop Modal */}
+        {selectedImageUri && (
+          <ImageCropModal
+            visible={cropModalVisible}
+            imageUri={selectedImageUri}
+            onCrop={handleCropComplete}
+            onCancel={handleCropCancel}
+          />
+        )}
+      </>
     );
   }
 
@@ -712,6 +783,16 @@ export function CustomizationPanel({
       >
         <ScrollView>{renderContent()}</ScrollView>
       </Animated.View>
+
+      {/* Crop Modal */}
+      {selectedImageUri && (
+        <ImageCropModal
+          visible={cropModalVisible}
+          imageUri={selectedImageUri}
+          onCrop={handleCropComplete}
+          onCancel={handleCropCancel}
+        />
+      )}
     </>
   );
 }
