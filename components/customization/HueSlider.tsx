@@ -5,11 +5,11 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   clamp,
   interpolate,
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 import { ColorPresets, hsl, toReactNativeColor } from "@/utils/colorUtils";
 
 interface HueSliderProps {
@@ -58,7 +58,7 @@ export function HueSlider({
       translateX.value = newX;
 
       const newHue = interpolate(newX, [0, trackWidth], [0, 360]);
-      runOnJS(updateHue)(newHue);
+      scheduleOnRN(updateHue, newHue);
     })
     .onEnd(() => {
       const finalX =
@@ -71,7 +71,7 @@ export function HueSlider({
   const tapGesture = Gesture.Tap().onStart((event) => {
     // Any tap triggers mode switch to color
     if (onThumbPress) {
-      runOnJS(onThumbPress)();
+      scheduleOnRN(onThumbPress);
     }
 
     // Tap on track - adjust hue
@@ -79,7 +79,7 @@ export function HueSlider({
     translateX.value = withSpring(newX);
 
     const newHue = interpolate(newX, [0, trackWidth], [0, 360]);
-    runOnJS(updateHue)(newHue);
+    scheduleOnRN(updateHue, newHue);
   });
 
   const composedGesture = Gesture.Simultaneous(panGesture, tapGesture);
