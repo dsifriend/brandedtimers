@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useState } from "react";
-import { LayoutChangeEvent, View } from "react-native";
+import { LayoutChangeEvent, Platform, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   clamp,
@@ -104,7 +104,7 @@ export function HueSlider({
     return {
       transform: [
         { translateX: translateX.value - thumbRadius },
-        { translateY: -8 },
+        { translateY: Platform.OS === "web" ? -8 : 0 },
       ],
     };
   });
