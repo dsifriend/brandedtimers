@@ -1,4 +1,5 @@
 import { ColorSchemeName } from "react-native";
+import { QueueEntry } from "@/components/queue/types";
 
 export type FontFamily = "inter" | "merriweather";
 
@@ -19,4 +20,8 @@ export interface ThemeTemplate {
   useBWSecondary: boolean;
   fontFamily: FontFamily;
   header: HeaderConfig;
+  queue?: {
+    entries: QueueEntry[];
+    continuousMode: boolean;
+  };
 }
