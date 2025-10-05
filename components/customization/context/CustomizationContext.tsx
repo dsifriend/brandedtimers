@@ -7,7 +7,9 @@ import React, {
   useReducer,
 } from "react";
 import { Appearance, ColorSchemeName } from "react-native";
-import { ColorPresets, toReactNativeColor } from "../../../utils/colorUtils";
+import { ColorPresets, toReactNativeColor } from "@/utils/colorUtils";
+import { ThemeTemplate } from "@/types/template";
+import brandedTimers from "@/assets/templates/brandedTimers.json";
 
 type FontFamily = "inter" | "merriweather";
 
@@ -158,27 +160,23 @@ const getFontFamilyName = (fontFamily: FontFamily): string => {
   }
 };
 
+const defaultTemplate = brandedTimers as ThemeTemplate;
+
 const initialState: CustomizationState = {
   colorScheme: Appearance.getColorScheme() || "dark",
-  primaryHue: 220, // Default blue
-  secondaryHue: 280, // Default purple
-  useBWPrimary: false,
-  useBWSecondary: false,
-  fontFamily: "inter", // Default font
+  primaryHue: defaultTemplate.primaryHue,
+  secondaryHue: defaultTemplate.secondaryHue,
+  useBWPrimary: defaultTemplate.useBWPrimary,
+  useBWSecondary: defaultTemplate.useBWSecondary,
+  fontFamily: defaultTemplate.fontFamily,
   colors: generateColors(
-    220,
-    280,
+    defaultTemplate.primaryHue,
+    defaultTemplate.secondaryHue,
     Appearance.getColorScheme() || "dark",
-    false,
-    false,
+    defaultTemplate.useBWPrimary,
+    defaultTemplate.useBWSecondary,
   ),
-  header: {
-    mainHeading: "",
-    mainHeadingRight: "",
-    subheading: "",
-    splitHeading: false,
-    imageBase64: null,
-  },
+  header: defaultTemplate.header,
   isLoading: true,
 };
 
