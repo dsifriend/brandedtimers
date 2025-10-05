@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, View } from 'react-native';
-import Timer from '../components/timer/Timer';
+import React, { useState } from "react";
+import { KeyboardAvoidingView, Platform, View } from "react-native";
+import Timer from "../components/timer/Timer";
+import { useCustomization } from "@/components/customization/context/CustomizationContext";
+import { CustomizationPanel } from "@/components/customization/CustomizationPanel";
+import { FloatingCustomizeButton } from "@/components/customization/FloatingCustomizeButton";
+import { Header } from "@/components/Header";
+import { QueueProvider } from "@/components/queue/context/QueueContext";
+import { useQueueIntegration } from "@/components/queue/hooks/useQueueIntegration";
 
-import { useCustomization } from '@/components/customization/context/CustomizationContext';
-import { CustomizationPanel } from '@/components/customization/CustomizationPanel';
-import { FloatingCustomizeButton } from '@/components/customization/FloatingCustomizeButton';
-import { Header } from '@/components/Header';
-
-export default function Index() {
+// Separate component to use queue hooks inside provider
+function AppContent() {
   const [showCustomization, setShowCustomization] = useState(false);
+  const [showQueue, setShowQueue] = useState(false);
   const { state } = useCustomization();
+
+  // This hook connects queue to timer
+  useQueueIntegration();
 
   const content = (
     <View style={{ flex: 1, backgroundColor: state.colors.background }}>
@@ -17,24 +23,39 @@ export default function Index() {
       <Header />
 
       {/* Timer - takes full screen, centered */}
-      <View style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-      }}>
+      <View
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+        }}
+      >
         <Timer />
       </View>
 
+      {/* Customization Panel */}
       <CustomizationPanel
         isVisible={showCustomization}
         onClose={() => setShowCustomization(false)}
       />
 
+      {/* Queue Panel - placeholder for now */}
+      {/* <QueuePanel
+        isVisible={showQueue}
+        onClose={() => setShowQueue(false)}
+      /> */}
+
+      {/* Floating Buttons */}
       <FloatingCustomizeButton
         onPress={() => setShowCustomization(!showCustomization)}
       />
+
+      {/* Queue button - placeholder for now */}
+      {/* <FloatingQueueButton
+        onPress={() => setShowQueue(!showQueue)}
+      /> */}
     </View>
   );
 
@@ -48,8 +69,16 @@ export default function Index() {
         {content}
       </KeyboardAvoidingView>
     );
-  }
-  else {
+  } else {
     return content;
   }
+}
+
+// Main export with providers
+export default function Index() {
+  return (
+    <QueueProvider>
+      <AppContent />
+    </QueueProvider>
+  );
 }

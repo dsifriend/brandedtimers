@@ -4,6 +4,7 @@ import * as Sharing from "expo-sharing";
 import { Platform, Alert } from "react-native";
 import { CustomizationState } from "@/components/customization/context/CustomizationContext";
 import { ThemeTemplate } from "@/types/template";
+import { QueueState } from "@/components/queue/types";
 
 /**
  * Normalize a string for use as a filename
@@ -29,9 +30,12 @@ function generateFilename(state: CustomizationState): string {
 }
 
 /**
- * Export the current theme to a .tmtimer file
+ * Export the current theme with queue data to a .tmtimer file
  */
-export async function exportTheme(state: CustomizationState): Promise<void> {
+export async function exportTheme(
+  state: CustomizationState,
+  queueState?: QueueState,
+): Promise<void> {
   try {
     // Create the theme object matching ThemeTemplate structure
     const theme: ThemeTemplate = {
@@ -44,6 +48,14 @@ export async function exportTheme(state: CustomizationState): Promise<void> {
       fontFamily: state.fontFamily,
       header: state.header,
     };
+
+    // Add queue data if provided
+    if (queueState && queueState.entries.length > 0) {
+      theme.queue = {
+        entries: queueState.entries,
+        continuousMode: queueState.continuousMode,
+      };
+    }
 
     const jsonString = JSON.stringify(theme, null, 2);
     const filename = generateFilename(state);
@@ -86,6 +98,7 @@ export async function exportTheme(state: CustomizationState): Promise<void> {
  */
 export async function importTheme(
   applyTemplate: (template: Partial<ThemeTemplate>) => void,
+  applyQueue?: (queueData: { entries: any[]; continuousMode: boolean }) => void,
 ): Promise<void> {
   try {
     const result = await DocumentPicker.getDocumentAsync({
@@ -134,8 +147,26 @@ export async function importTheme(
       }
     }
 
-    // Apply the template using the existing context function
+    // Apply the theme using the existing context function
     applyTemplate(parsed);
+
+    // Apply queue data if present and handler provided
+    if (parsed.queue && applyQueue) {
+      // Validate queue entries
+      const validEntries = parsed.queue.entries.filter(
+        (entry: any) =>
+          typeof entry.id === "string" &&
+          typeof entry.duration === "number" &&
+          entry.duration > 0,
+      );
+
+      if (validEntries.length > 0) {
+        applyQueue({
+          entries: validEntries,
+          continuousMode: parsed.queue.continuousMode ?? false,
+        });
+      }
+    }
   } catch (error) {
     console.error("Import error:", error);
     if (error instanceof SyntaxError) {

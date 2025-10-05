@@ -2,12 +2,16 @@ import React from "react";
 import { Image, Text, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCustomization } from "./customization/context/CustomizationContext";
+import { useQueueHeader } from "./queue/hooks/useQueueHeader";
 
 export function Header() {
   const { state, getFontFamilyName } = useCustomization();
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const fontFamily = getFontFamilyName();
+
+  // Queue integration
+  const { isQueueActive, queueLabel, queueProgress } = useQueueHeader();
 
   const {
     mainHeading,
@@ -17,21 +21,30 @@ export function Header() {
     imageBase64,
   } = state.header;
 
-  // Don't render if all fields are empty
-  if (!mainHeading && !mainHeadingRight && !subheading) {
+  // Don't render if all fields are empty (including queue label)
+  if (!mainHeading && !mainHeadingRight && !subheading && !queueLabel) {
     return null;
   }
 
-  const image = (
+  const imageSize = Math.min(width, height) <= 768 ? 48 : 96;
+
+  const image = imageBase64 ? (
     <Image
-      source={{ uri: `${imageBase64}` }}
+      source={{ uri: `data:image/png;base64,${imageBase64}` }}
       style={{
-        width: Math.min(width, height) <= 768 ? 48 : 96,
-        height: Math.min(width, height) <= 768 ? 48 : 96,
+        width: imageSize,
+        height: imageSize,
         margin: 16,
+        borderRadius: 8,
       }}
     />
-  );
+  ) : null;
+
+  // Calculate responsive font sizes
+  const isSmallScreen = Math.min(width, height) <= 768;
+  const mainFontSize = isSmallScreen ? 28 : 36;
+  const subFontSize = isSmallScreen ? 18 : 24;
+  const queueFontSize = isSmallScreen ? 14 : 18;
 
   return (
     <View
@@ -45,81 +58,88 @@ export function Header() {
         paddingBottom: 16,
         backgroundColor: state.colors.background,
         alignItems: "center",
+        zIndex: 10, // Ensure header is above other elements
       }}
     >
+      {/* Non-split image */}
       {!splitHeading && imageBase64 && image}
 
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          width: "100%",
-        }}
-      >
-        {/* Left column */}
+      {/* Main heading row */}
+      {(mainHeading || mainHeadingRight || (splitHeading && imageBase64)) && (
         <View
           style={{
-            flex: 1,
+            flexDirection: "row",
             alignItems: "center",
-            paddingRight: splitHeading ? 8 : 0,
+            width: "100%",
           }}
         >
-          <Text
-            style={{
-              fontSize: 36,
-              fontWeight: "600",
-              fontFamily,
-              color: state.colors.accent,
-              textAlign: "center",
-              width: "100%",
-            }}
-          >
-            {mainHeading}
-          </Text>
-        </View>
-
-        {/* Center column - only when split */}
-        {splitHeading && (
+          {/* Left column */}
           <View
             style={{
+              flex: splitHeading ? 1 : 0,
               alignItems: "center",
-              paddingHorizontal: 8,
+              paddingRight: splitHeading ? 8 : 0,
             }}
           >
-            {image}
+            {mainHeading && (
+              <Text
+                style={{
+                  fontSize: mainFontSize,
+                  fontWeight: "600",
+                  fontFamily,
+                  color: state.colors.accent,
+                  textAlign: "center",
+                  width: "100%",
+                }}
+              >
+                {mainHeading}
+              </Text>
+            )}
           </View>
-        )}
 
-        {/* Right column - only when split */}
-        {splitHeading && mainHeadingRight && (
-          <View
-            style={{
-              flex: 1,
-              alignItems: "center",
-              paddingLeft: 8,
-            }}
-          >
-            <Text
+          {/* Center column - only when split */}
+          {splitHeading && imageBase64 && (
+            <View
               style={{
-                fontSize: 36,
-                fontWeight: "600",
-                fontFamily,
-                color: state.colors.accent,
-                textAlign: "center",
-                width: "100%",
+                alignItems: "center",
+                paddingHorizontal: 8,
               }}
             >
-              {mainHeadingRight}
-            </Text>
-          </View>
-        )}
-      </View>
+              {image}
+            </View>
+          )}
+
+          {/* Right column - only when split */}
+          {splitHeading && mainHeadingRight && (
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                paddingLeft: 8,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: mainFontSize,
+                  fontWeight: "600",
+                  fontFamily,
+                  color: state.colors.accent,
+                  textAlign: "center",
+                  width: "100%",
+                }}
+              >
+                {mainHeadingRight}
+              </Text>
+            </View>
+          )}
+        </View>
+      )}
 
       {/* Subheading */}
       {subheading && (
         <Text
           style={{
-            fontSize: 24,
+            fontSize: subFontSize,
             fontFamily,
             color: state.colors.textSecondary,
             textAlign: "center",
@@ -127,6 +147,32 @@ export function Header() {
           }}
         >
           {subheading}
+        </Text>
+      )}
+
+      {/* Queue Label - Third level heading */}
+      {isQueueActive && queueLabel && (
+        <Text
+          style={{
+            fontSize: queueFontSize,
+            fontFamily,
+            color: state.colors.textSecondary,
+            textAlign: "center",
+            marginTop: 6,
+            opacity: 0.8,
+          }}
+        >
+          {queueLabel}
+          {queueProgress && (
+            <Text
+              style={{
+                fontSize: queueFontSize * 0.9,
+                opacity: 0.7,
+              }}
+            >
+              {` (${queueProgress.current} of ${queueProgress.total})`}
+            </Text>
+          )}
         </Text>
       )}
     </View>
