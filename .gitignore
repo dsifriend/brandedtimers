@@ -36,4 +36,5 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-app-example
+# Generated templates (build artifacts)
+assets/templates/
