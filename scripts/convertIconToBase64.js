@@ -57,7 +57,7 @@ const templates = {
     header: {
       mainHeading: "Citrus",
       mainHeadingRight: "Industries",
-      subheading: "Easy Peasy Lemon Squeaky",
+      subheading: "Easy Peasy Lemon Squeezy",
       splitHeading: true,
       imageBase64: base64Icon,
     },
