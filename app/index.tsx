@@ -1,3 +1,4 @@
+// app/index.tsx
 import React, { useState } from "react";
 import { KeyboardAvoidingView, Platform, View } from "react-native";
 import Timer from "../components/timer/Timer";
@@ -6,6 +7,8 @@ import { CustomizationPanel } from "@/components/customization/CustomizationPane
 import { FloatingCustomizeButton } from "@/components/customization/FloatingCustomizeButton";
 import { Header } from "@/components/Header";
 import { QueueProvider } from "@/components/queue/context/QueueContext";
+import { QueuePanel } from "@/components/queue/QueuePanel";
+import { FloatingQueueButton } from "@/components/queue/FloatingQueueButton";
 import { useQueueIntegration } from "@/components/queue/hooks/useQueueIntegration";
 
 // Separate component to use queue hooks inside provider
@@ -35,36 +38,37 @@ function AppContent() {
         <Timer />
       </View>
 
-      {/* Customization Panel */}
+      {/* Panels */}
       <CustomizationPanel
         isVisible={showCustomization}
         onClose={() => setShowCustomization(false)}
       />
 
-      {/* Queue Panel - placeholder for now */}
-      {/* <QueuePanel
-        isVisible={showQueue}
-        onClose={() => setShowQueue(false)}
-      /> */}
+      <QueuePanel isVisible={showQueue} onClose={() => setShowQueue(false)} />
 
       {/* Floating Buttons */}
       <FloatingCustomizeButton
-        onPress={() => setShowCustomization(!showCustomization)}
+        onPress={() => {
+          setShowCustomization(!showCustomization);
+          if (showQueue) setShowQueue(false); // Close queue if open
+        }}
       />
 
-      {/* Queue button - placeholder for now */}
-      {/* <FloatingQueueButton
-        onPress={() => setShowQueue(!showQueue)}
-      /> */}
+      <FloatingQueueButton
+        onPress={() => {
+          setShowQueue(!showQueue);
+          if (showCustomization) setShowCustomization(false); // Close customization if open
+        }}
+      />
     </View>
   );
 
-  {/* Return content, wrapped in `KeyboardAvoidingView` on mobile. */ }
-  if (Platform.OS === 'ios' || Platform.OS === 'android') {
+  // Return content, wrapped in `KeyboardAvoidingView` on mobile
+  if (Platform.OS === "ios" || Platform.OS === "android") {
     return (
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {content}
       </KeyboardAvoidingView>
