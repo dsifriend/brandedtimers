@@ -1,11 +1,26 @@
 const fs = require("fs");
 const path = require("path");
 
-// Read the icon file
+// Read the icon file and convert to base64 data URI
 const iconPath = path.join(__dirname, "..", "assets", "icon.png");
+
+console.log("Looking for icon at:", iconPath);
+
+if (!fs.existsSync(iconPath)) {
+  console.error("ERROR: Icon file not found at", iconPath);
+  process.exit(1);
+}
+
 const iconBuffer = fs.readFileSync(iconPath);
-const base64Icon = iconBuffer.toString("base64");
-const dataUri = `data:image/png;base64,${base64Icon}`;
+console.log("Icon file size:", iconBuffer.length, "bytes");
+
+if (iconBuffer.length === 0) {
+  console.error("ERROR: Icon file is empty");
+  process.exit(1);
+}
+
+// Store as complete data URI for consistency with user-picked images
+const base64Icon = `data:image/png;base64,${iconBuffer.toString("base64")}`;
 
 // Create templates directory if it doesn't exist
 const templatesDir = path.join(__dirname, "..", "assets", "templates");
@@ -28,7 +43,7 @@ const templates = {
       mainHeadingRight: "",
       subheading: "",
       splitHeading: false,
-      imageBase64: dataUri,
+      imageBase64: base64Icon,
     },
   },
   citrusIndustries: {
@@ -44,7 +59,7 @@ const templates = {
       mainHeadingRight: "Industries",
       subheading: "Easy Peasy Lemon Squeaky",
       splitHeading: true,
-      imageBase64: dataUri,
+      imageBase64: base64Icon,
     },
   },
   nineties: {
@@ -85,7 +100,10 @@ const templates = {
 Object.entries(templates).forEach(([key, template]) => {
   const filePath = path.join(templatesDir, `${key}.json`);
   fs.writeFileSync(filePath, JSON.stringify(template, null, 2));
-  console.log(`Created ${key}.json`);
+  console.log(`✓ Created ${key}.json`);
 });
 
-console.log("All templates generated successfully!");
+// Verify the base64 icon was created correctly
+const base64Length = base64Icon.length - "data:image/png;base64,".length;
+console.log(`✓ Icon base64 encoded: ${base64Length} characters`);
+console.log("✓ All templates generated successfully!");

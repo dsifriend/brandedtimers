@@ -24,7 +24,7 @@ export function Header() {
 
   const image = (
     <Image
-      source={{ uri: `data:image/png;base64,${imageBase64}` }}
+      source={{ uri: `${imageBase64}` }}
       style={{
         width: Math.min(width, height) <= 768 ? 48 : 96,
         height: Math.min(width, height) <= 768 ? 48 : 96,

@@ -235,7 +235,11 @@ export function CustomizationPanel({
               base64: true,
             },
           );
-          setHeaderImage(manipulated.base64 || null);
+          // Add data URI prefix to match template format
+          const dataUri = manipulated.base64
+            ? `data:image/png;base64,${manipulated.base64}`
+            : null;
+          setHeaderImage(dataUri);
         } else {
           // Image needs cropping - show crop modal
           setSelectedImageUri(asset.uri);
@@ -276,7 +280,9 @@ export function CustomizationPanel({
           },
         );
 
-        setHeaderImage(manipulated.base64 || null);
+        // Add data URI prefix to match template format
+        const dataUri = manipulated.base64 ? `${manipulated.base64}` : null;
+        setHeaderImage(dataUri);
         setCropModalVisible(false);
         setSelectedImageUri(null);
       } catch (error) {
@@ -475,7 +481,7 @@ export function CustomizationPanel({
             >
               <Image
                 source={{
-                  uri: `data:image/png;base64,${state.header.imageBase64}`,
+                  uri: `${state.header.imageBase64}`,
                 }}
                 style={{
                   width: 128,
