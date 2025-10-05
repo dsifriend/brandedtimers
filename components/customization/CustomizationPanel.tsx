@@ -338,8 +338,11 @@ export function CustomizationPanel({
         <TouchableOpacity
           onPress={onClose}
           style={{
+            alignItems: "center",
+            justifyContent: "center",
+            aspectRatio: 1,
             padding: 8,
-            borderRadius: 20,
+            borderRadius: 40,
             backgroundColor: state.colors.primary,
           }}
         >
@@ -495,6 +498,7 @@ export function CustomizationPanel({
                   alignItems: "center",
                   justifyContent: "center",
                   backgroundColor: state.colors.accent,
+                  aspectRatio: 1,
                   borderRadius: 50,
                   padding: 8,
                 }}
@@ -507,6 +511,7 @@ export function CustomizationPanel({
               onPress={handlePickImage}
               style={{
                 backgroundColor: state.colors.primary,
+                aspectRatio: 1,
                 borderRadius: 12,
                 padding: 16,
                 flexDirection: "row",

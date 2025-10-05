@@ -20,6 +20,7 @@ export function FloatingCustomizeButton({
 
   const baseStyle = {
     position: "absolute" as const,
+    aspectRatio: 1,
     padding: 12,
     borderRadius: 28,
     backgroundColor: state.colors.primary,
