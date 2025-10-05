@@ -3,6 +3,11 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
+    "prebuild": "node scripts/convertIconToBase64.js",
+    "prestart": "node scripts/convertIconToBase64.js",
+    "preandroid": "node scripts/convertIconToBase64.js",
+    "preios": "node scripts/convertIconToBase64.js",
+    "preweb": "node scripts/convertIconToBase64.js",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
