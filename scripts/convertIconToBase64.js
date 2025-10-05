@@ -65,7 +65,7 @@ const templates = {
   nineties: {
     name: "90's Simulacrum",
     colorScheme: "dark",
-    primaryHue: 270,
+    primaryHue: 235,
     secondaryHue: 120,
     useBWPrimary: false,
     useBWSecondary: false,
