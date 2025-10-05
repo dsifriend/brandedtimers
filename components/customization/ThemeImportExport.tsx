@@ -2,18 +2,31 @@ import React, { useCallback } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useCustomization } from "./context/CustomizationContext";
+import { useQueue } from "../queue/context/QueueContext";
 import { exportTheme, importTheme } from "@/utils/themeImportExport";
 
 export const ThemeImportExport: React.FC = () => {
   const { state, applyTemplate } = useCustomization();
+  const { state: queueState, dispatch: queueDispatch } = useQueue();
 
   const handleExport = useCallback(async () => {
-    await exportTheme(state);
-  }, [state]);
+    // Pass queue state to export function
+    await exportTheme(state, queueState);
+  }, [state, queueState]);
 
   const handleImport = useCallback(async () => {
-    await importTheme(applyTemplate);
-  }, [applyTemplate]);
+    // Handle both theme and queue import
+    await importTheme(applyTemplate, (queueData) => {
+      // Load the queue data
+      queueDispatch({
+        type: "LOAD_QUEUE",
+        state: {
+          entries: queueData.entries,
+          continuousMode: queueData.continuousMode,
+        },
+      });
+    });
+  }, [applyTemplate, queueDispatch]);
 
   return (
     <View style={styles.container}>
