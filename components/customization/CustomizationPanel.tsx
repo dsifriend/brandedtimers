@@ -23,6 +23,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FontFamily, useCustomization } from "./context/CustomizationContext";
 import { HueSlider } from "./HueSlider";
 import { ImageCropModal } from "./ImageCropModal";
+import { TemplateSelector } from "./TemplateSelector";
 
 interface CustomizationPanelProps {
   isVisible: boolean;
@@ -708,6 +709,9 @@ export function CustomizationPanel({
             />
           </View>
         </View>
+
+        {/* Theme Templates */}
+        <TemplateSelector />
       </View>
     </View>
   );
