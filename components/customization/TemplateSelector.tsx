@@ -61,7 +61,7 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
 
   return (
     <Pressable
-      style={styles.templateButton}
+      style={[styles.templateButton, { backgroundColor: state.colors.primary }]}
       onPress={onPress}
       onHoverIn={Platform.OS === "web" ? onHoverIn : undefined}
       onHoverOut={Platform.OS === "web" ? onHoverOut : undefined}
