@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from "react";
-import { View, Text, Pressable, StyleSheet, Platform } from "react-native";
+import React, { useCallback } from "react";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useCustomization } from "./context/CustomizationContext";
 import { ThemeTemplate } from "@/types/template";
 
@@ -19,15 +19,11 @@ const TEMPLATES: ThemeTemplate[] = [
 interface TemplatePreviewProps {
   template: ThemeTemplate;
   onPress: () => void;
-  onHoverIn?: () => void;
-  onHoverOut?: () => void;
 }
 
 const TemplatePreview: React.FC<TemplatePreviewProps> = ({
   template,
   onPress,
-  onHoverIn,
-  onHoverOut,
 }) => {
   const { state } = useCustomization();
 
@@ -63,8 +59,6 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
     <Pressable
       style={[styles.templateButton, { backgroundColor: state.colors.primary }]}
       onPress={onPress}
-      onHoverIn={Platform.OS === "web" ? onHoverIn : undefined}
-      onHoverOut={Platform.OS === "web" ? onHoverOut : undefined}
     >
       <View style={styles.colorPreview}>
         <View
@@ -102,9 +96,6 @@ const TemplatePreview: React.FC<TemplatePreviewProps> = ({
 
 export const TemplateSelector: React.FC = () => {
   const { state, applyTemplate } = useCustomization();
-  const [savedSettings, setSavedSettings] = useState<Partial<
-    typeof state
-  > | null>(null);
 
   const handleApplyTemplate = useCallback(
     (template: ThemeTemplate) => {
@@ -112,32 +103,6 @@ export const TemplateSelector: React.FC = () => {
     },
     [applyTemplate],
   );
-
-  const handlePreviewStart = useCallback(
-    (template: ThemeTemplate) => {
-      // Save current settings
-      setSavedSettings({
-        colorScheme: state.colorScheme,
-        primaryHue: state.primaryHue,
-        secondaryHue: state.secondaryHue,
-        useBWPrimary: state.useBWPrimary,
-        useBWSecondary: state.useBWSecondary,
-        fontFamily: state.fontFamily,
-        header: { ...state.header },
-      });
-      // Apply template for preview
-      applyTemplate(template);
-    },
-    [state, applyTemplate],
-  );
-
-  const handlePreviewEnd = useCallback(() => {
-    // Restore saved settings
-    if (savedSettings) {
-      applyTemplate(savedSettings as ThemeTemplate);
-      setSavedSettings(null);
-    }
-  }, [savedSettings, applyTemplate]);
 
   return (
     <View style={styles.container}>
@@ -149,8 +114,6 @@ export const TemplateSelector: React.FC = () => {
           key={index}
           template={template}
           onPress={() => handleApplyTemplate(template)}
-          onHoverIn={() => handlePreviewStart(template)}
-          onHoverOut={handlePreviewEnd}
         />
       ))}
     </View>
