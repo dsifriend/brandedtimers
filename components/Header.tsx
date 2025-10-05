@@ -28,6 +28,7 @@ export function Header() {
       style={{
         width: Math.min(width, height) <= 768 ? 48 : 96,
         height: Math.min(width, height) <= 768 ? 48 : 96,
+        margin: 16,
       }}
     />
   );
