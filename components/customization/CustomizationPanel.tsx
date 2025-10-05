@@ -24,6 +24,7 @@ import { FontFamily, useCustomization } from "./context/CustomizationContext";
 import { HueSlider } from "./HueSlider";
 import { ImageCropModal } from "./ImageCropModal";
 import { TemplateSelector } from "./TemplateSelector";
+import { ThemeImportExport } from "./ThemeImportExport";
 
 interface CustomizationPanelProps {
   isVisible: boolean;
@@ -723,6 +724,8 @@ export function CustomizationPanel({
 
         {/* Theme Templates */}
         <TemplateSelector />
+        {/* Them Import/Export */}
+        <ThemeImportExport />
       </View>
     </View>
   );

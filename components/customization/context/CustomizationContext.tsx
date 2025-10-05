@@ -30,7 +30,7 @@ interface HeaderConfig {
   imageBase64: string | null;
 }
 
-interface CustomizationState {
+export interface CustomizationState {
   colorScheme: ColorSchemeName;
   primaryHue: number;
   secondaryHue: number;
