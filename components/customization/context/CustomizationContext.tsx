@@ -40,6 +40,24 @@ interface CustomizationState {
   isLoading: boolean;
 }
 
+interface CustomizationContextValue {
+  state: CustomizationState;
+  setPrimaryHue: (hue: number) => void;
+  setSecondaryHue: (hue: number) => void;
+  setColorScheme: (scheme: ColorSchemeName) => void;
+  setFontFamily: (fontFamily: FontFamily) => void;
+  setBWPrimary: (useBW: boolean) => void;
+  setBWSecondary: (useBW: boolean) => void;
+  setHeaderMain: (text: string) => void;
+  setHeaderMainRight: (text: string) => void;
+  setHeaderSub: (text: string) => void;
+  setHeaderImage: (imageBase64: string | null) => void;
+  toggleSplitHeading: (preference?: boolean) => void;
+  getFontFamilyName: () => string;
+  resetToDefaults: () => void;
+  applyTemplate: (template: Partial<CustomizationState>) => void;
+}
+
 type CustomizationAction =
   | { type: "SET_COLOR_SCHEME"; scheme: ColorSchemeName }
   | { type: "SET_PRIMARY_HUE"; hue: number }
@@ -480,6 +498,10 @@ export function CustomizationProvider({
     }
   }, []);
 
+  const applyTemplate = useCallback((template: Partial<CustomizationState>) => {
+    dispatch({ type: "RESTORE_SETTINGS", settings: template });
+  }, []);
+
   return (
     <CustomizationContext.Provider
       value={{
@@ -497,6 +519,7 @@ export function CustomizationProvider({
         toggleSplitHeading,
         getFontFamilyName: getCurrentFontFamilyName,
         resetToDefaults,
+        applyTemplate,
       }}
     >
       {children}
