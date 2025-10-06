@@ -1,4 +1,3 @@
-// app/index.tsx
 import React, { useState } from "react";
 import { KeyboardAvoidingView, Platform, View } from "react-native";
 import Timer from "../components/timer/Timer";
@@ -9,23 +8,18 @@ import { Header } from "@/components/Header";
 import { QueueProvider } from "@/components/queue/context/QueueContext";
 import { QueuePanel } from "@/components/queue/QueuePanel";
 import { FloatingQueueButton } from "@/components/queue/FloatingQueueButton";
-import { useQueueIntegration } from "@/components/queue/hooks/useQueueIntegration";
+import { TimerProvider } from "@/components/timer/context/TimerContext";
 
-// Separate component to use queue hooks inside provider
 function AppContent() {
   const [showCustomization, setShowCustomization] = useState(false);
   const [showQueue, setShowQueue] = useState(false);
   const { state } = useCustomization();
-
-  // This hook connects queue to timer
-  useQueueIntegration();
 
   const content = (
     <View style={{ flex: 1, backgroundColor: state.colors.background }}>
       {/* Header - positioned absolutely at top */}
       <Header />
 
-      {/* Timer - takes full screen, centered */}
       <View
         style={{
           position: "absolute",
@@ -79,10 +73,13 @@ function AppContent() {
 }
 
 // Main export with providers
+// TimerProvider wraps everything so QueuePanel can use timer functions
 export default function Index() {
   return (
-    <QueueProvider>
-      <AppContent />
-    </QueueProvider>
+    <TimerProvider>
+      <QueueProvider>
+        <AppContent />
+      </QueueProvider>
+    </TimerProvider>
   );
 }

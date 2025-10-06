@@ -1,7 +1,10 @@
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useQueue } from "../context/QueueContext";
 import { useTimer } from "../../timer/context/TimerContext";
 
+/**
+ * This hook should only be used inside components that are wrapped in TimerProvider
+ */
 export function useQueueIntegration() {
   const {
     state: queueState,

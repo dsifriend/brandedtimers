@@ -3,19 +3,22 @@ import {
   View,
   Text,
   TouchableOpacity,
-  ScrollView,
   Switch,
   Modal,
   useWindowDimensions,
   Platform,
 } from "react-native";
+import DraggableFlatList, {
+  ScaleDecorator,
+  RenderItemParams,
+} from "react-native-draggable-flatlist";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useCustomization } from "@/components/customization/context/CustomizationContext";
 import { useQueue } from "./context/QueueContext";
 import { QueueEntryRow } from "./components/QueueEntryRow";
-// Removed AddTimerModal import - not needed
+import { QueueEntry } from "./types";
 
 interface QueuePanelProps {
   isVisible: boolean;
@@ -66,6 +69,62 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
       startQueue();
     }
   }, [queueState.isActive, queueState.entries.length, startQueue, stopQueue]);
+
+  const handleDragEnd = useCallback(
+    ({ data }: { data: QueueEntry[] }) => {
+      dispatch({ type: "REORDER_ENTRIES", entries: data });
+    },
+    [dispatch],
+  );
+
+  const renderItem = useCallback(
+    ({ item, drag, isActive: isDragging }: RenderItemParams<QueueEntry>) => {
+      const isCurrentlyActive =
+        queueState.isActive &&
+        queueState.entries[queueState.currentIndex]?.id === item.id;
+
+      return (
+        <ScaleDecorator>
+          <TouchableOpacity
+            onLongPress={drag}
+            disabled={isCurrentlyActive || queueState.isActive}
+            activeOpacity={1}
+          >
+            <QueueEntryRow
+              entry={item}
+              isActive={isCurrentlyActive}
+              onUpdate={updateTimer}
+              onRemove={removeTimer}
+              dragHandleComponent={
+                <TouchableOpacity
+                  onPressIn={drag}
+                  disabled={isCurrentlyActive || queueState.isActive}
+                  style={{
+                    marginRight: 12,
+                    opacity: queueState.isActive ? 0.3 : 0.5,
+                  }}
+                >
+                  <Ionicons
+                    name="reorder-three"
+                    size={24}
+                    color={customState.colors.text}
+                  />
+                </TouchableOpacity>
+              }
+            />
+          </TouchableOpacity>
+        </ScaleDecorator>
+      );
+    },
+    [
+      queueState.isActive,
+      queueState.currentIndex,
+      queueState.entries,
+      updateTimer,
+      removeTimer,
+      customState.colors.text,
+    ],
+  );
 
   const renderContent = () => (
     <View
@@ -165,14 +224,8 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
         </View>
       )}
 
-      {/* Queue List */}
-      <ScrollView
-        style={{
-          flex: 1,
-          marginBottom: 20,
-        }}
-        showsVerticalScrollIndicator={false}
-      >
+      {/* Queue List with Drag and Drop */}
+      <View style={{ flex: 1, marginBottom: 20 }}>
         {queueState.entries.length === 0 ? (
           <View
             style={{
@@ -204,19 +257,16 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
             </Text>
           </View>
         ) : (
-          queueState.entries.map((entry, index) => (
-            <QueueEntryRow
-              key={entry.id}
-              entry={entry}
-              isActive={
-                queueState.isActive && index === queueState.currentIndex
-              }
-              onUpdate={updateTimer}
-              onRemove={removeTimer}
-            />
-          ))
+          <DraggableFlatList
+            data={queueState.entries}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            onDragEnd={handleDragEnd}
+            showsVerticalScrollIndicator={false}
+            activationDistance={queueState.isActive ? 9999 : 10} // Disable drag when active
+          />
         )}
-      </ScrollView>
+      </View>
 
       {/* Control Buttons */}
       <View style={{ gap: 12 }}>

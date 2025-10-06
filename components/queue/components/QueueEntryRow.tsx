@@ -1,4 +1,3 @@
-// components/queue/components/QueueEntryRow.tsx
 import React, { useState, useCallback, useRef } from "react";
 import {
   View,
@@ -11,7 +10,10 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { QueueEntry } from "../types";
 import { useCustomization } from "@/components/customization/context/CustomizationContext";
-import { useTimer } from "@/components/timer/context/TimerContext";
+import {
+  millisecondsToSegments,
+  segmentsToMilliseconds,
+} from "@/utils/timerUtils";
 
 interface QueueEntryRowProps {
   entry: QueueEntry;
@@ -29,7 +31,6 @@ export function QueueEntryRow({
   dragHandleComponent,
 }: QueueEntryRowProps) {
   const { state } = useCustomization();
-  const { millisecondsToSegments, segmentsToMilliseconds } = useTimer();
 
   const [isEditingDuration, setIsEditingDuration] = useState(false);
   const [isEditingLabel, setIsEditingLabel] = useState(false);

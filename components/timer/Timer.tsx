@@ -15,6 +15,7 @@ import { useFontMetrics } from "./hooks/useFontMetrics";
 import { useSegmentEditing } from "./hooks/useSegmentEditing";
 import { useTimerAnimation } from "./hooks/useTimerAnimation";
 import { useTimerCompletion } from "./hooks/useTimerCompletion";
+import { useQueueIntegration } from "../queue/hooks/useQueueIntegration";
 
 function TimerContent() {
   const { state, millisecondsToSegments } = useTimer();
@@ -29,6 +30,9 @@ function TimerContent() {
 
   // Use the completion hook
   const { flashOpacity } = useTimerCompletion();
+
+  // Connect queue to timer - this needs to be inside a TimerProvider
+  useQueueIntegration();
 
   const segments = millisecondsToSegments(state.totalMilliseconds);
   const showHours = segments.hours > 0 || editingSegment === "hours";
