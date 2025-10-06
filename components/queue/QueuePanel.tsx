@@ -84,7 +84,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
         queueState.entries[queueState.currentIndex]?.id === item.id;
 
       return (
-        <ScaleDecorator>
+        <ScaleDecorator activeScale={0.95}>
           <TouchableOpacity
             onLongPress={drag}
             disabled={isCurrentlyActive || queueState.isActive}
