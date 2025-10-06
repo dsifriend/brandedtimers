@@ -72,36 +72,38 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
 
   const handleDragEnd = useCallback(
     ({ data }: { data: QueueEntry[] }) => {
-      dispatch({ type: "REORDER_ENTRIES", entries: data });
+      // If queue is active, we need to prepend the active timer back
+      if (queueState.isActive && queueState.currentIndex === 0) {
+        const activeTimer = queueState.entries[0];
+        dispatch({ type: "REORDER_ENTRIES", entries: [activeTimer, ...data] });
+      } else {
+        dispatch({ type: "REORDER_ENTRIES", entries: data });
+      }
     },
-    [dispatch],
+    [
+      dispatch,
+      queueState.isActive,
+      queueState.currentIndex,
+      queueState.entries,
+    ],
   );
 
   const renderItem = useCallback(
     ({ item, drag, isActive: isDragging }: RenderItemParams<QueueEntry>) => {
-      const isCurrentlyActive =
-        queueState.isActive &&
-        queueState.entries[queueState.currentIndex]?.id === item.id;
-
       return (
         <ScaleDecorator activeScale={0.95}>
-          <TouchableOpacity
-            onLongPress={drag}
-            disabled={isCurrentlyActive || queueState.isActive}
-            activeOpacity={1}
-          >
+          <TouchableOpacity onLongPress={drag} activeOpacity={1}>
             <QueueEntryRow
               entry={item}
-              isActive={isCurrentlyActive}
+              isActive={false}
               onUpdate={updateTimer}
               onRemove={removeTimer}
               dragHandleComponent={
                 <TouchableOpacity
                   onPressIn={drag}
-                  disabled={isCurrentlyActive || queueState.isActive}
                   style={{
                     marginRight: 12,
-                    opacity: queueState.isActive ? 0.3 : 0.5,
+                    opacity: 0.5,
                   }}
                 >
                   <Ionicons
@@ -116,15 +118,19 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
         </ScaleDecorator>
       );
     },
-    [
-      queueState.isActive,
-      queueState.currentIndex,
-      queueState.entries,
-      updateTimer,
-      removeTimer,
-      state.colors.text,
-    ],
+    [updateTimer, removeTimer, state.colors.text],
   );
+
+  // Get the list of timers to show in the draggable list
+  const draggableEntries =
+    queueState.isActive && queueState.currentIndex === 0
+      ? queueState.entries.slice(1)
+      : queueState.entries;
+
+  const activeEntry =
+    queueState.isActive && queueState.currentIndex === 0
+      ? queueState.entries[0]
+      : null;
 
   const renderContent = () => (
     <View
@@ -260,14 +266,43 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
             </Text>
           </View>
         ) : (
-          <DraggableFlatList
-            data={queueState.entries}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            onDragEnd={handleDragEnd}
-            showsVerticalScrollIndicator={false}
-            activationDistance={queueState.isActive ? 9999 : 10} // Disable drag when active
-          />
+          <>
+            {/* Active timer (locked, non-draggable) */}
+            {activeEntry && (
+              <QueueEntryRow
+                entry={activeEntry}
+                isActive={true}
+                onUpdate={updateTimer}
+                onRemove={removeTimer}
+                dragHandleComponent={
+                  <View
+                    style={{
+                      marginRight: 12,
+                      opacity: 0.3,
+                    }}
+                  >
+                    <Ionicons
+                      name="reorder-three"
+                      size={24}
+                      color={state.colors.text}
+                    />
+                  </View>
+                }
+              />
+            )}
+
+            {/* Draggable list of remaining timers */}
+            {draggableEntries.length > 0 && (
+              <DraggableFlatList
+                data={draggableEntries}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                onDragEnd={handleDragEnd}
+                showsVerticalScrollIndicator={false}
+                activationDistance={10}
+              />
+            )}
+          </>
         )}
       </View>
 
