@@ -26,7 +26,7 @@ interface QueuePanelProps {
 }
 
 export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
-  const { state: customState } = useCustomization();
+  const { state: state } = useCustomization();
   const {
     state: queueState,
     addTimer,
@@ -46,7 +46,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
   const panelWidth = useBottomSheet ? "100%" : 400;
 
   const fontFamily =
-    customState.fontFamily === "inter"
+    state.fontFamily === "inter"
       ? "Inter_400Regular"
       : "Merriweather_400Regular";
 
@@ -107,7 +107,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
                   <Ionicons
                     name="reorder-three"
                     size={24}
-                    color={customState.colors.text}
+                    color={state.colors.text}
                   />
                 </TouchableOpacity>
               }
@@ -122,7 +122,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
       queueState.entries,
       updateTimer,
       removeTimer,
-      customState.colors.text,
+      state.colors.text,
     ],
   );
 
@@ -132,7 +132,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
         flex: 1,
         padding: 20,
         paddingTop: useBottomSheet ? 20 : Math.max(insets.top, 20),
-        backgroundColor: customState.colors.background,
+        backgroundColor: state.colors.background,
       }}
     >
       {/* Header */}
@@ -148,7 +148,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
           style={{
             fontSize: 24,
             fontWeight: "600",
-            color: customState.colors.text,
+            color: state.colors.text,
             fontFamily,
           }}
         >
@@ -157,12 +157,15 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
         <TouchableOpacity
           onPress={onClose}
           style={{
+            alignItems: "center",
+            justifyContent: "center",
+            aspectRatio: 1,
             padding: 8,
-            borderRadius: 20,
-            backgroundColor: customState.colors.primary,
+            borderRadius: 40,
+            backgroundColor: state.colors.primary,
           }}
         >
-          <Ionicons name="close" size={20} color={customState.colors.text} />
+          <Ionicons name="close" size={20} color={state.colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -172,7 +175,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
-          backgroundColor: customState.colors.primary,
+          backgroundColor: state.colors.primary,
           borderRadius: 12,
           paddingHorizontal: 16,
           paddingVertical: 12,
@@ -182,7 +185,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
         <Text
           style={{
             fontSize: 16,
-            color: customState.colors.text,
+            color: state.colors.text,
             fontFamily,
           }}
         >
@@ -192,10 +195,10 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
           value={queueState.continuousMode}
           onValueChange={handleContinuousModeToggle}
           trackColor={{
-            false: customState.colors.background,
-            true: customState.colors.background,
+            false: state.colors.background,
+            true: state.colors.background,
           }}
-          thumbColor={customState.colors.text}
+          thumbColor={state.colors.text}
           disabled={queueState.isActive}
         />
       </View>
@@ -204,7 +207,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
       {queueState.isActive && (
         <View
           style={{
-            backgroundColor: customState.colors.accent,
+            backgroundColor: state.colors.accent,
             borderRadius: 12,
             padding: 12,
             marginBottom: 20,
@@ -213,7 +216,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
           <Text
             style={{
               fontSize: 14,
-              color: customState.colors.text,
+              color: state.colors.text,
               fontFamily,
               textAlign: "center",
             }}
@@ -236,7 +239,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
             <Text
               style={{
                 fontSize: 16,
-                color: customState.colors.textSecondary,
+                color: state.colors.textSecondary,
                 fontFamily,
                 textAlign: "center",
                 marginBottom: 20,
@@ -247,7 +250,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
             <Text
               style={{
                 fontSize: 14,
-                color: customState.colors.textSecondary,
+                color: state.colors.textSecondary,
                 fontFamily,
                 textAlign: "center",
                 opacity: 0.7,
@@ -274,7 +277,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
         <TouchableOpacity
           onPress={handleAddTimer}
           style={{
-            backgroundColor: customState.colors.primary,
+            backgroundColor: state.colors.primary,
             borderRadius: 12,
             padding: 16,
             flexDirection: "row",
@@ -285,14 +288,14 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
           <Ionicons
             name="add-circle"
             size={24}
-            color={customState.colors.text}
+            color={state.colors.text}
             style={{ marginRight: 8 }}
           />
           <Text
             style={{
               fontSize: 16,
               fontWeight: "600",
-              color: customState.colors.text,
+              color: state.colors.text,
               fontFamily,
             }}
           >
@@ -307,7 +310,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
             disabled={!queueState.isActive && queueState.currentIndex === 0}
             style={{
               flex: 1,
-              backgroundColor: customState.colors.primary,
+              backgroundColor: state.colors.primary,
               borderRadius: 12,
               padding: 16,
               alignItems: "center",
@@ -319,7 +322,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
               style={{
                 fontSize: 16,
                 fontWeight: "600",
-                color: customState.colors.text,
+                color: state.colors.text,
                 fontFamily,
               }}
             >
@@ -333,8 +336,8 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
             style={{
               flex: 2,
               backgroundColor: queueState.isActive
-                ? customState.colors.secondary
-                : customState.colors.accent,
+                ? state.colors.secondary
+                : state.colors.accent,
               borderRadius: 12,
               padding: 16,
               alignItems: "center",
@@ -345,7 +348,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
               style={{
                 fontSize: 16,
                 fontWeight: "600",
-                color: customState.colors.text,
+                color: state.colors.text,
                 fontFamily,
               }}
             >
@@ -376,7 +379,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
           >
             <BlurView
               intensity={80}
-              tint={customState.colorScheme === "dark" ? "dark" : "light"}
+              tint={state.colorScheme === "dark" ? "dark" : "light"}
               style={{ flex: 1 }}
             />
           </TouchableOpacity>
@@ -387,7 +390,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
               left: 0,
               right: 0,
               height: height * 0.8,
-              backgroundColor: customState.colors.background,
+              backgroundColor: state.colors.background,
               borderTopLeftRadius: 20,
               borderTopRightRadius: 20,
               shadowColor: "#000",
@@ -432,7 +435,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
           right: 0,
           bottom: 0,
           width: panelWidth,
-          backgroundColor: customState.colors.background,
+          backgroundColor: state.colors.background,
           shadowColor: "#000",
           shadowOffset: { width: -2, height: 0 },
           shadowOpacity: 0.25,
