@@ -21,6 +21,7 @@ export function FloatingCustomizeButton({
   const baseStyle = {
     position: "absolute" as const,
     aspectRatio: 1,
+    margin: 10,
     padding: 12,
     borderRadius: 28,
     backgroundColor: state.colors.primary,
@@ -34,7 +35,7 @@ export function FloatingCustomizeButton({
   const positionStyle = useBottomPosition
     ? {
         bottom: Math.max(insets.bottom, 20), // Ensure minimum 20px from edge
-        left: width / 2 - 28, // Center horizontally
+        right: width / 2, // Center horizontally
       }
     : {
         top: Math.max(insets.top, 20),
