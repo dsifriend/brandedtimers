@@ -41,58 +41,51 @@ export function QueueEntryRow({
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const heightAnim = useRef(new Animated.Value(70)).current;
 
-  // Format duration for display (when not editing)
+  // Format duration for display/editing (always MM:SS minimum, or HH:MM:SS)
   const formatDuration = useCallback(
-    (ms: number): string => {
-      const segments = millisecondsToSegments(ms);
-      const parts = [];
-      if (segments.hours > 0) parts.push(`${segments.hours}h`);
-      if (segments.minutes > 0) parts.push(`${segments.minutes}m`);
-      if (segments.seconds > 0 || parts.length === 0)
-        parts.push(`${segments.seconds}s`);
-      return parts.join(" ");
-    },
-    [millisecondsToSegments],
-  );
-
-  // Format duration for editing (MM:SS or HH:MM:SS)
-  const formatDurationForEdit = useCallback(
     (ms: number): string => {
       const segments = millisecondsToSegments(ms);
       if (segments.hours > 0) {
         return `${segments.hours}:${String(segments.minutes).padStart(2, "0")}:${String(segments.seconds).padStart(2, "0")}`;
       } else {
-        return `${segments.minutes}:${String(segments.seconds).padStart(2, "0")}`;
+        return `${String(segments.minutes).padStart(2, "0")}:${String(segments.seconds).padStart(2, "0")}`;
       }
     },
     [millisecondsToSegments],
   );
 
-  // Parse duration from simple text input (e.g., "5m", "1h30m", "90s")
+  // Parse duration from colon-separated format (HH:MM:SS, MM:SS, or SS)
   const parseDurationText = useCallback(
     (text: string): number | null => {
-      const cleaned = text.toLowerCase().trim();
+      const cleaned = text.trim();
+      const parts = cleaned.split(":").map((p) => parseInt(p, 10));
 
-      // Match patterns like "1h", "30m", "45s", "1h30m", "2h15m30s"
-      const hours = (cleaned.match(/(\d+)\s*h/i) || [])[1];
-      const minutes = (cleaned.match(/(\d+)\s*m/i) || [])[1];
-      const seconds = (cleaned.match(/(\d+)\s*s/i) || [])[1];
-
-      // If just a number, treat as minutes
-      if (/^\d+$/.test(cleaned)) {
-        const value = parseInt(cleaned, 10);
-        return segmentsToMilliseconds({ hours: 0, minutes: value, seconds: 0 });
+      // Filter out NaN values
+      if (parts.some((p) => isNaN(p))) {
+        return null;
       }
 
-      const h = parseInt(hours || "0", 10);
-      const m = parseInt(minutes || "0", 10);
-      const s = parseInt(seconds || "0", 10);
+      let hours = 0;
+      let minutes = 0;
+      let seconds = 0;
 
-      const totalMs = segmentsToMilliseconds({
-        hours: h,
-        minutes: m,
-        seconds: s,
-      });
+      if (parts.length === 1) {
+        // SS format
+        seconds = parts[0];
+      } else if (parts.length === 2) {
+        // MM:SS format
+        minutes = parts[0];
+        seconds = parts[1];
+      } else if (parts.length === 3) {
+        // HH:MM:SS format
+        hours = parts[0];
+        minutes = parts[1];
+        seconds = parts[2];
+      } else {
+        return null;
+      }
+
+      const totalMs = segmentsToMilliseconds({ hours, minutes, seconds });
       return totalMs > 0 ? totalMs : null;
     },
     [segmentsToMilliseconds],
@@ -159,26 +152,12 @@ export function QueueEntryRow({
         style={{
           flexDirection: "row",
           alignItems: "center",
-          backgroundColor: isActive
-            ? state.colors.accent
-            : state.colors.primary,
+          backgroundColor: state.colors.primary,
           borderRadius: 12,
-          padding: 12,
-          marginBottom: 8,
-          minHeight: 70,
+          padding: 8,
+          marginVertical: 12,
         }}
       >
-        {/* Drag Handle */}
-        {dragHandleComponent || (
-          <View style={{ marginRight: 12, opacity: 0.5 }}>
-            <Ionicons
-              name="reorder-three"
-              size={24}
-              color={state.colors.text}
-            />
-          </View>
-        )}
-
         {/* Content */}
         <View style={{ flex: 1 }}>
           {/* Duration */}
@@ -188,14 +167,14 @@ export function QueueEntryRow({
               onChangeText={setDurationText}
               onSubmitEditing={handleDurationSubmit}
               onBlur={handleDurationSubmit}
-              placeholder="e.g. 5m, 30s, 1h30m"
+              placeholder="05:00"
               placeholderTextColor={state.colors.textSecondary}
-              keyboardType="default"
+              keyboardType="numbers-and-punctuation"
               autoFocus
               selectTextOnFocus
               style={{
-                fontSize: 18,
-                fontWeight: "600",
+                fontSize: 14,
+                fontWeight: "400",
                 color: state.colors.text,
                 fontFamily,
                 borderBottomWidth: 1,
@@ -207,8 +186,8 @@ export function QueueEntryRow({
             <TouchableOpacity onPress={handleDurationPress} disabled={isActive}>
               <Text
                 style={{
-                  fontSize: 18,
-                  fontWeight: "600",
+                  fontSize: 14,
+                  fontWeight: "400",
                   color: state.colors.text,
                   fontFamily,
                 }}
@@ -258,13 +237,19 @@ export function QueueEntryRow({
           )}
         </View>
 
+        {/* Drag Handle */}
+        {dragHandleComponent || (
+          <View>
+            <Ionicons name="reorder-three" size={8} color={state.colors.text} />
+          </View>
+        )}
+
         {/* Remove Button */}
         <TouchableOpacity
           onPress={handleRemove}
           disabled={isActive}
           style={{
-            marginLeft: 12,
-            padding: 8,
+            padding: 4,
             opacity: isActive ? 0.3 : 1,
           }}
         >
