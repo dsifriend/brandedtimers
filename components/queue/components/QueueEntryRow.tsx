@@ -173,7 +173,7 @@ export function QueueEntryRow({
               autoFocus
               selectTextOnFocus
               style={{
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: "400",
                 color: state.colors.text,
                 fontFamily,
@@ -186,7 +186,7 @@ export function QueueEntryRow({
             <TouchableOpacity onPress={handleDurationPress} disabled={isActive}>
               <Text
                 style={{
-                  fontSize: 14,
+                  fontSize: 16,
                   fontWeight: "400",
                   color: state.colors.text,
                   fontFamily,
@@ -231,7 +231,7 @@ export function QueueEntryRow({
                   fontStyle: entry.label ? "normal" : "italic",
                 }}
               >
-                {entry.label || "Tap to add label"}
+                {entry.label || "(Add a Label)"}
               </Text>
             </TouchableOpacity>
           )}
