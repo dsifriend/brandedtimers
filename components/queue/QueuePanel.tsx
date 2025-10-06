@@ -406,23 +406,43 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
 
   // Sidebar for desktop/web
   return (
-    <View
-      style={{
-        position: "absolute",
-        top: 0,
-        right: 0,
-        bottom: 0,
-        width: panelWidth,
-        backgroundColor: customState.colors.background,
-        shadowColor: "#000",
-        shadowOffset: { width: -2, height: 0 },
-        shadowOpacity: 0.25,
-        shadowRadius: 10,
-        elevation: 5,
-        zIndex: 1000,
-      }}
-    >
-      {renderContent()}
-    </View>
+    <>
+      {/* Backdrop */}
+      {isVisible && (
+        <TouchableOpacity
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            zIndex: 999,
+          }}
+          onPress={onClose}
+          activeOpacity={1}
+        />
+      )}
+
+      {/* Sidebar */}
+      <View
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          bottom: 0,
+          width: panelWidth,
+          backgroundColor: customState.colors.background,
+          shadowColor: "#000",
+          shadowOffset: { width: -2, height: 0 },
+          shadowOpacity: 0.25,
+          shadowRadius: 10,
+          elevation: 5,
+          zIndex: 1000,
+        }}
+      >
+        {renderContent()}
+      </View>
+    </>
   );
 }
