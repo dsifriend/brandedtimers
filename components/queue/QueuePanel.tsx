@@ -13,7 +13,7 @@ import DraggableFlatList, {
 } from "react-native-draggable-flatlist";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -53,23 +53,19 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ["25%", "85%"], []);
 
-  // Sidebar animation - initialize properly based on layout
+  // Sidebar animation
   const sidebarTranslateX = useSharedValue(useBottomSheet ? 0 : panelWidth);
 
-  // Initialize proper state on mount
   React.useEffect(() => {
     if (useBottomSheet) {
-      // Force close bottom sheet on mount if not visible
       if (!isVisible && bottomSheetRef.current) {
         bottomSheetRef.current.close();
       }
     } else {
-      // Ensure sidebar starts in correct position
       sidebarTranslateX.value = isVisible ? 0 : panelWidth;
     }
-  }, []); // Run once on mount
+  }, []);
 
-  // Handle visibility changes
   React.useEffect(() => {
     if (useBottomSheet) {
       if (isVisible) {
@@ -85,10 +81,8 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
     }
   }, [isVisible, useBottomSheet, sidebarTranslateX]);
 
-  // Update sidebar position when layout changes
   React.useEffect(() => {
     if (!useBottomSheet) {
-      // Reset sidebar position when switching to desktop mode
       sidebarTranslateX.value = isVisible ? 0 : panelWidth;
     }
   }, [useBottomSheet, isVisible, sidebarTranslateX]);
@@ -112,8 +106,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
   );
 
   const handleAddTimer = useCallback(() => {
-    // Add a new timer with default 5 minute duration
-    addTimer(5 * 60 * 1000); // 5 minutes in milliseconds
+    addTimer(5 * 60 * 1000);
   }, [addTimer]);
 
   const handleQueueControl = useCallback(() => {
@@ -126,7 +119,6 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
 
   const handleDragEnd = useCallback(
     ({ data }: { data: QueueEntry[] }) => {
-      // If queue is active, we need to prepend the active timer back
       if (queueState.isActive && queueState.currentIndex === 0) {
         const activeTimer = queueState.entries[0];
         dispatch({ type: "REORDER_ENTRIES", entries: [activeTimer, ...data] });
@@ -142,40 +134,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
     ],
   );
 
-  const renderItem = useCallback(
-    ({ item, drag, isActive: isDragging }: RenderItemParams<QueueEntry>) => {
-      return (
-        <ScaleDecorator activeScale={0.95}>
-          <TouchableOpacity onLongPress={drag} activeOpacity={1}>
-            <QueueEntryRow
-              entry={item}
-              isActive={false}
-              onUpdate={updateTimer}
-              onRemove={removeTimer}
-              dragHandleComponent={
-                <TouchableOpacity
-                  onPressIn={drag}
-                  style={{
-                    marginRight: 12,
-                    opacity: 0.5,
-                  }}
-                >
-                  <Ionicons
-                    name="reorder-three"
-                    size={24}
-                    color={state.colors.text}
-                  />
-                </TouchableOpacity>
-              }
-            />
-          </TouchableOpacity>
-        </ScaleDecorator>
-      );
-    },
-    [updateTimer, removeTimer, state.colors.text],
-  );
-
-  // Get the list of timers to show in the draggable list
+  // Get data for the draggable list
   const draggableEntries =
     queueState.isActive && queueState.currentIndex === 0
       ? queueState.entries.slice(1)
@@ -186,117 +145,124 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
       ? queueState.entries[0]
       : null;
 
-  const renderContent = () => (
-    <View
-      style={{
-        flex: 1,
-        padding: 20,
-        paddingTop: useBottomSheet ? 20 : Math.max(insets.top, 20),
-        marginRight: useBottomSheet ? 0 : insets.right,
-        backgroundColor: state.colors.background,
-      }}
-    >
-      {/* Header */}
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 20,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 24,
-            fontWeight: "600",
-            color: state.colors.text,
-            fontFamily,
-          }}
-        >
-          Timer Queue
-        </Text>
-        <TouchableOpacity
-          onPress={onClose}
-          style={{
-            alignItems: "center",
-            justifyContent: "center",
-            aspectRatio: 1,
-            padding: 8,
-            borderRadius: 40,
-            backgroundColor: state.colors.primary,
-          }}
-        >
-          <Ionicons name="close" size={20} color={state.colors.text} />
-        </TouchableOpacity>
-      </View>
-
-      {/* Continuous Mode Toggle */}
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          backgroundColor: state.colors.primary,
-          borderRadius: 12,
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          marginBottom: 20,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 16,
-            color: state.colors.text,
-            fontFamily,
-          }}
-        >
-          Continuous Mode
-        </Text>
-        <Switch
-          value={queueState.continuousMode}
-          onValueChange={handleContinuousModeToggle}
-          trackColor={{
-            false: state.colors.background,
-            true: state.colors.background,
-          }}
-          thumbColor={state.colors.text}
-          disabled={queueState.isActive}
-        />
-      </View>
-
-      {/* Queue Status */}
-      {queueState.isActive && (
+  // Render header
+  const renderListHeader = useCallback(() => {
+    return (
+      <View style={{ paddingHorizontal: 20, paddingTop: 20 }}>
+        {/* Header */}
         <View
           style={{
-            backgroundColor: state.colors.accent,
-            borderRadius: 12,
-            padding: 12,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
             marginBottom: 20,
           }}
         >
           <Text
             style={{
-              fontSize: 14,
+              fontSize: 24,
+              fontWeight: "600",
               color: state.colors.text,
               fontFamily,
-              textAlign: "center",
             }}
           >
-            Queue Running • Timer {queueState.currentIndex + 1} of{" "}
-            {queueState.entries.length}
+            Timer Queue
           </Text>
+          <TouchableOpacity
+            onPress={onClose}
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              aspectRatio: 1,
+              padding: 8,
+              borderRadius: 40,
+              backgroundColor: state.colors.primary,
+            }}
+          >
+            <Ionicons name="close" size={20} color={state.colors.text} />
+          </TouchableOpacity>
         </View>
-      )}
 
-      {/* Queue List with Drag and Drop */}
-      <View style={{ flex: 1, marginBottom: 20 }}>
-        {queueState.entries.length === 0 ? (
+        {/* Continuous Mode Toggle */}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            backgroundColor: state.colors.primary,
+            borderRadius: 12,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            marginBottom: 20,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 16,
+              color: state.colors.text,
+              fontFamily,
+            }}
+          >
+            Continuous Mode
+          </Text>
+          <Switch
+            value={queueState.continuousMode}
+            onValueChange={handleContinuousModeToggle}
+            trackColor={{
+              false: state.colors.background,
+              true: state.colors.background,
+            }}
+            thumbColor={state.colors.text}
+            disabled={queueState.isActive}
+          />
+        </View>
+
+        {/* Queue Status */}
+        {queueState.isActive && (
           <View
             style={{
-              padding: 40,
-              alignItems: "center",
+              backgroundColor: state.colors.accent,
+              borderRadius: 12,
+              padding: 12,
+              marginBottom: 20,
             }}
           >
+            <Text
+              style={{
+                fontSize: 14,
+                color: state.colors.text,
+                fontFamily,
+                textAlign: "center",
+              }}
+            >
+              Queue Running • Timer {queueState.currentIndex + 1} of{" "}
+              {queueState.entries.length}
+            </Text>
+          </View>
+        )}
+
+        {/* Active Timer (if present) */}
+        {activeEntry && (
+          <QueueEntryRow
+            entry={activeEntry}
+            isActive={true}
+            onUpdate={updateTimer}
+            onRemove={removeTimer}
+            dragHandleComponent={
+              <View style={{ marginRight: 12, opacity: 0.3 }}>
+                <Ionicons
+                  name="reorder-three"
+                  size={24}
+                  color={state.colors.text}
+                />
+              </View>
+            }
+          />
+        )}
+
+        {/* Empty State */}
+        {queueState.entries.length === 0 && (
+          <View style={{ padding: 40, alignItems: "center" }}>
             <Text
               style={{
                 fontSize: 16,
@@ -320,49 +286,24 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
               Tap "Add Timer" to create your first timer
             </Text>
           </View>
-        ) : (
-          <>
-            {/* Active timer (locked, non-draggable) */}
-            {activeEntry && (
-              <QueueEntryRow
-                entry={activeEntry}
-                isActive={true}
-                onUpdate={updateTimer}
-                onRemove={removeTimer}
-                dragHandleComponent={
-                  <View
-                    style={{
-                      marginRight: 12,
-                      opacity: 0.3,
-                    }}
-                  >
-                    <Ionicons
-                      name="reorder-three"
-                      size={24}
-                      color={state.colors.text}
-                    />
-                  </View>
-                }
-              />
-            )}
-
-            {/* Draggable list of remaining timers */}
-            {draggableEntries.length > 0 && (
-              <DraggableFlatList
-                data={draggableEntries}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-                onDragEnd={handleDragEnd}
-                showsVerticalScrollIndicator={false}
-                activationDistance={10}
-              />
-            )}
-          </>
         )}
       </View>
+    );
+  }, [
+    state,
+    fontFamily,
+    queueState,
+    handleContinuousModeToggle,
+    activeEntry,
+    updateTimer,
+    removeTimer,
+    onClose,
+  ]);
 
-      {/* Control Buttons */}
-      <View style={{ gap: 12 }}>
+  // Render footer
+  const renderListFooter = useCallback(() => {
+    return (
+      <View style={{ paddingHorizontal: 20, paddingBottom: 20, gap: 12 }}>
         {/* Add Timer Button */}
         <TouchableOpacity
           onPress={handleAddTimer}
@@ -447,29 +388,88 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    );
+  }, [
+    state,
+    fontFamily,
+    queueState,
+    handleAddTimer,
+    handleQueueControl,
+    resetQueue,
+  ]);
+
+  // Render draggable item
+  const renderDraggableItem = useCallback(
+    ({ item, drag, isActive: isDragging }: RenderItemParams<QueueEntry>) => {
+      return (
+        <ScaleDecorator activeScale={0.95}>
+          <View style={{ paddingHorizontal: 20 }}>
+            <TouchableOpacity onLongPress={drag} activeOpacity={1}>
+              <QueueEntryRow
+                entry={item}
+                isActive={false}
+                onUpdate={updateTimer}
+                onRemove={removeTimer}
+                dragHandleComponent={
+                  <TouchableOpacity
+                    onPressIn={drag}
+                    style={{ marginRight: 12, opacity: 0.5 }}
+                  >
+                    <Ionicons
+                      name="reorder-three"
+                      size={24}
+                      color={state.colors.text}
+                    />
+                  </TouchableOpacity>
+                }
+              />
+            </TouchableOpacity>
+          </View>
+        </ScaleDecorator>
+      );
+    },
+    [updateTimer, removeTimer, state.colors.text],
   );
 
+  // Bottom sheet content
   if (useBottomSheet) {
     return (
       <BottomSheet
         ref={bottomSheetRef}
         snapPoints={snapPoints}
-        index={-1} // Start closed
+        index={-1}
         enablePanDownToClose
         onClose={onClose}
         backgroundStyle={{ backgroundColor: state.colors.background }}
         handleIndicatorStyle={{ backgroundColor: state.colors.textSecondary }}
         enableOverDrag={false}
       >
-        <BottomSheetScrollView style={{ marginBottom: insets.bottom + 8 }}>
-          {renderContent()}
-        </BottomSheetScrollView>
+        {draggableEntries.length > 0 ? (
+          <DraggableFlatList
+            data={draggableEntries}
+            renderItem={renderDraggableItem}
+            keyExtractor={(item) => item.id}
+            onDragEnd={handleDragEnd}
+            ListHeaderComponent={renderListHeader}
+            ListFooterComponent={renderListFooter}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 8 }}
+            showsVerticalScrollIndicator={false}
+            activationDistance={10}
+          />
+        ) : (
+          <BottomSheetFlatList
+            data={[]}
+            renderItem={() => null}
+            ListHeaderComponent={renderListHeader}
+            ListFooterComponent={renderListFooter}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 8 }}
+          />
+        )}
       </BottomSheet>
     );
   }
 
-  // Sidebar for desktop
+  // Sidebar for desktop/mobile landscape
   return (
     <>
       {/* Backdrop */}
@@ -507,7 +507,27 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
           sidebarStyle,
         ]}
       >
-        <ScrollView>{renderContent()}</ScrollView>
+        {/* Use same DraggableFlatList approach as bottom sheet */}
+        {draggableEntries.length > 0 ? (
+          <DraggableFlatList
+            data={draggableEntries}
+            renderItem={renderDraggableItem}
+            keyExtractor={(item) => item.id}
+            onDragEnd={handleDragEnd}
+            ListHeaderComponent={renderListHeader}
+            ListFooterComponent={renderListFooter}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 8 }}
+            showsVerticalScrollIndicator={false}
+            activationDistance={10}
+          />
+        ) : (
+          <ScrollView
+            contentContainerStyle={{ paddingBottom: insets.bottom + 8 }}
+          >
+            {renderListHeader()}
+            {renderListFooter()}
+          </ScrollView>
+        )}
       </Animated.View>
     </>
   );
