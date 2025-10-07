@@ -11,7 +11,7 @@ export function Header() {
   const fontFamily = getFontFamilyName();
 
   // Queue integration
-  const { isQueueActive, queueLabel, queueProgress } = useQueueHeader();
+  const { isQueueActive, queueLabel } = useQueueHeader();
 
   const {
     mainHeading,
@@ -32,7 +32,7 @@ export function Header() {
       style={{
         width: Math.min(width, height) <= 768 ? 48 : 96,
         height: Math.min(width, height) <= 768 ? 48 : 96,
-        margin: 16,
+        margin: Math.min(width, height) <= 768 ? 8 : 16,
       }}
     />
   );
@@ -46,7 +46,7 @@ export function Header() {
         right: 0,
         paddingTop: Math.max(insets.top, 20),
         paddingHorizontal: 20,
-        paddingBottom: 16,
+        marginBottom: Math.min(width, height) <= 768 ? 16 : 32,
         backgroundColor: state.colors.background,
         alignItems: "center",
       }}
