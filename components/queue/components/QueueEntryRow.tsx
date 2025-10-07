@@ -123,7 +123,7 @@ export function QueueEntryRow({
       Animated.timing(fadeAnim, {
         toValue: 0,
         duration: 200,
-        useNativeDriver: true,
+        useNativeDriver: false, // Crashes with `true` on iOS
       }),
       Animated.timing(heightAnim, {
         toValue: 0,
