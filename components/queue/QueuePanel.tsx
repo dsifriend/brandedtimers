@@ -205,6 +205,8 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
             true: state.colors.background,
           }}
           thumbColor={state.colors.text}
+          //@ts-expect-error type
+          activeThumbColor={state.colors.text}
           disabled={queueState.isActive}
         />
       </View>
