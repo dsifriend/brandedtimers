@@ -66,14 +66,13 @@ export function useQueueIntegration() {
       timerState.totalMilliseconds === 0 &&
       wasRunning.current
     ) {
-      wasRunning.current = false;
-
       // Advance to next entry if available
       if (hasNextEntry()) {
         advanceQueue();
       } else {
-        // Queue completed - this will be handled by the reducer
+        // Queue completed
         advanceQueue();
+        wasRunning.current = false;
       }
     }
   }, [
