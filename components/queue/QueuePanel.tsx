@@ -148,7 +148,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
   // Render header
   const renderListHeader = useCallback(() => {
     return (
-      <View style={{ paddingHorizontal: 20, paddingTop: 20 }}>
+      <View style={{ paddingHorizontal: 20, paddingTop: 20, marginBottom: 12 }}>
         {/* Header */}
         <View
           style={{
@@ -193,7 +193,6 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
             borderRadius: 12,
             paddingHorizontal: 16,
             paddingVertical: 12,
-            marginBottom: 20,
           }}
         >
           <Text
@@ -224,7 +223,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
               backgroundColor: state.colors.accent,
               borderRadius: 12,
               padding: 12,
-              marginBottom: 20,
+              marginVertical: 4,
             }}
           >
             <Text
@@ -269,7 +268,6 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
                 color: state.colors.textSecondary,
                 fontFamily,
                 textAlign: "center",
-                marginBottom: 20,
               }}
             >
               No timers in queue
@@ -303,7 +301,14 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
   // Render footer
   const renderListFooter = useCallback(() => {
     return (
-      <View style={{ paddingHorizontal: 20, paddingBottom: 20, gap: 12 }}>
+      <View
+        style={{
+          paddingHorizontal: 20,
+          paddingBottom: 12,
+          marginTop: 16,
+          gap: 8,
+        }}
+      >
         {/* Add Timer Button */}
         <TouchableOpacity
           onPress={handleAddTimer}
@@ -343,7 +348,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
               flex: 1,
               backgroundColor: state.colors.primary,
               borderRadius: 12,
-              padding: 16,
+              padding: 12,
               alignItems: "center",
               opacity:
                 !queueState.isActive && queueState.currentIndex === 0 ? 0.5 : 1,
@@ -370,7 +375,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
                 ? state.colors.secondary
                 : state.colors.accent,
               borderRadius: 12,
-              padding: 16,
+              padding: 12,
               alignItems: "center",
               opacity: queueState.entries.length === 0 ? 0.5 : 1,
             }}
