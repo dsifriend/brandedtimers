@@ -1,12 +1,11 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useRef, useMemo } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   Switch,
-  Modal,
   useWindowDimensions,
-  Platform,
+  ScrollView,
 } from "react-native";
 import DraggableFlatList, {
   ScaleDecorator,
@@ -14,7 +13,12 @@ import DraggableFlatList, {
 } from "react-native-draggable-flatlist";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
+import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated";
 import { useCustomization } from "@/components/customization/context/CustomizationContext";
 import { useQueue } from "./context/QueueContext";
 import { QueueEntryRow } from "./components/QueueEntryRow";
@@ -42,8 +46,58 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
   const insets = useSafeAreaInsets();
 
   // Determine if we should use sidebar or bottom sheet
-  const useBottomSheet = Platform.OS !== "web" || width < 768;
-  const panelWidth = useBottomSheet ? "100%" : 400;
+  const useBottomSheet = width < 768;
+  const panelWidth = 400;
+
+  // Bottom sheet setup
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const snapPoints = useMemo(() => ["25%", "85%"], []);
+
+  // Sidebar animation - initialize properly based on layout
+  const sidebarTranslateX = useSharedValue(useBottomSheet ? 0 : panelWidth);
+
+  // Initialize proper state on mount
+  React.useEffect(() => {
+    if (useBottomSheet) {
+      // Force close bottom sheet on mount if not visible
+      if (!isVisible && bottomSheetRef.current) {
+        bottomSheetRef.current.close();
+      }
+    } else {
+      // Ensure sidebar starts in correct position
+      sidebarTranslateX.value = isVisible ? 0 : panelWidth;
+    }
+  }, []); // Run once on mount
+
+  // Handle visibility changes
+  React.useEffect(() => {
+    if (useBottomSheet) {
+      if (isVisible) {
+        bottomSheetRef.current?.expand();
+      } else {
+        bottomSheetRef.current?.close();
+      }
+    } else {
+      sidebarTranslateX.value = withSpring(isVisible ? 0 : panelWidth, {
+        damping: 20,
+        stiffness: 300,
+      });
+    }
+  }, [isVisible, useBottomSheet, sidebarTranslateX]);
+
+  // Update sidebar position when layout changes
+  React.useEffect(() => {
+    if (!useBottomSheet) {
+      // Reset sidebar position when switching to desktop mode
+      sidebarTranslateX.value = isVisible ? 0 : panelWidth;
+    }
+  }, [useBottomSheet, isVisible, sidebarTranslateX]);
+
+  const sidebarStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: sidebarTranslateX.value }],
+    };
+  });
 
   const fontFamily =
     state.fontFamily === "inter"
@@ -138,6 +192,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
         flex: 1,
         padding: 20,
         paddingTop: useBottomSheet ? 20 : Math.max(insets.top, 20),
+        marginRight: useBottomSheet ? 0 : insets.right,
         backgroundColor: state.colors.background,
       }}
     >
@@ -205,8 +260,6 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
             true: state.colors.background,
           }}
           thumbColor={state.colors.text}
-          //@ts-expect-error type
-          activeThumbColor={state.colors.text}
           disabled={queueState.isActive}
         />
       </View>
@@ -397,54 +450,26 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
     </View>
   );
 
-  if (!isVisible) return null;
-
-  // Bottom sheet for mobile
   if (useBottomSheet) {
     return (
-      <Modal
-        visible={isVisible}
-        animationType="slide"
-        transparent
-        onRequestClose={onClose}
+      <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={snapPoints}
+        index={-1} // Start closed
+        enablePanDownToClose
+        onClose={onClose}
+        backgroundStyle={{ backgroundColor: state.colors.background }}
+        handleIndicatorStyle={{ backgroundColor: state.colors.textSecondary }}
+        enableOverDrag={false}
       >
-        <View style={{ flex: 1 }}>
-          <TouchableOpacity
-            style={{ flex: 1 }}
-            activeOpacity={1}
-            onPress={onClose}
-          >
-            <BlurView
-              intensity={80}
-              tint={state.colorScheme === "dark" ? "dark" : "light"}
-              style={{ flex: 1 }}
-            />
-          </TouchableOpacity>
-          <View
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: height * 0.8,
-              backgroundColor: state.colors.background,
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: -2 },
-              shadowOpacity: 0.25,
-              shadowRadius: 10,
-              elevation: 5,
-            }}
-          >
-            {renderContent()}
-          </View>
-        </View>
-      </Modal>
+        <BottomSheetScrollView style={{ marginBottom: insets.bottom + 8 }}>
+          {renderContent()}
+        </BottomSheetScrollView>
+      </BottomSheet>
     );
   }
 
-  // Sidebar for desktop/web
+  // Sidebar for desktop
   return (
     <>
       {/* Backdrop */}
@@ -465,24 +490,25 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
       )}
 
       {/* Sidebar */}
-      <View
-        style={{
-          position: "absolute",
-          top: 0,
-          right: 0,
-          bottom: 0,
-          width: panelWidth,
-          backgroundColor: state.colors.background,
-          shadowColor: "#000",
-          shadowOffset: { width: -2, height: 0 },
-          shadowOpacity: 0.25,
-          shadowRadius: 10,
-          elevation: 5,
-          zIndex: 1000,
-        }}
+      <Animated.View
+        style={[
+          {
+            position: "absolute",
+            top: 0,
+            right: 0,
+            width: panelWidth,
+            height: height,
+            backgroundColor: state.colors.background,
+            borderLeftWidth: 1,
+            borderLeftColor: state.colors.primary,
+            zIndex: 1000,
+            paddingTop: insets.top,
+          },
+          sidebarStyle,
+        ]}
       >
-        {renderContent()}
-      </View>
+        <ScrollView>{renderContent()}</ScrollView>
+      </Animated.View>
     </>
   );
 }
