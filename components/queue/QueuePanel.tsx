@@ -388,7 +388,7 @@ export function QueuePanel({ isVisible, onClose }: QueuePanelProps) {
                 fontFamily,
               }}
             >
-              {queueState.isActive ? "Stop Queue" : "Start Queue"}
+              {queueState.isActive ? "Stop Queue" : "Activate Queue"}
             </Text>
           </TouchableOpacity>
         </View>

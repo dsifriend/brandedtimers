@@ -20,6 +20,7 @@ export function useQueueIntegration() {
   useEffect(() => {
     if (!queueState.isActive) {
       lastLoadedEntryId.current = null;
+      wasRunning.current = false;
       return;
     }
 
