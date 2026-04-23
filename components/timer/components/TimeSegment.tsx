@@ -1,9 +1,13 @@
-import React, { memo, useEffect, useRef } from 'react';
-import { Platform, Text, TextInput, TouchableOpacity } from 'react-native';
-import Animated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
-import { useCustomization } from '../../customization/context/CustomizationContext';
-import { useTimer } from '../context/TimerContext';
-import { useSegmentEditing } from '../hooks/useSegmentEditing';
+import React, { memo, useEffect, useRef } from "react";
+import { Platform, Text, TextInput, TouchableOpacity } from "react-native";
+import Animated, {
+  SharedValue,
+  useAnimatedStyle,
+  useAnimatedProps,
+} from "react-native-reanimated";
+import { useCustomization } from "../../customization/context/CustomizationContext";
+import { useTimer } from "../context/TimerContext";
+import { useSegmentEditing } from "../hooks/useSegmentEditing";
 
 interface FontMetrics {
   fontSize: SharedValue<number>;
@@ -13,7 +17,7 @@ interface FontMetrics {
 
 interface TimeSegmentProps {
   value: number;
-  segment: 'hours' | 'minutes' | 'seconds';
+  segment: "hours" | "minutes" | "seconds";
   metrics: FontMetrics;
 }
 
@@ -23,14 +27,14 @@ const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 export const TimeSegment = memo(function TimeSegment({
   value,
   segment,
-  metrics
+  metrics,
 }: TimeSegmentProps) {
   const {
     editingSegment,
     editingValue,
     handleSegmentPress,
     handleSegmentChange,
-    handleSegmentSubmit
+    handleSegmentSubmit,
   } = useSegmentEditing();
 
   const { state: timerState } = useTimer();
@@ -50,40 +54,50 @@ export const TimeSegment = memo(function TimeSegment({
 
   // Calculate display value
   const displayValue = isTimerEmpty
-    ? '╌'
-    : value.toString().padStart(
-      segment === 'hours' ? Math.max(2, value.toString().length) : 2,
-      '0'
-    );
+    ? "╌"
+    : value
+        .toString()
+        .padStart(
+          segment === "hours" ? Math.max(2, value.toString().length) : 2,
+          "0",
+        );
 
-  const digits = displayValue.split('');
+  const digits = displayValue.split("");
 
   // Animated styles for text elements
   const animatedTextStyle = useAnimatedStyle(() => ({
     fontSize: metrics.fontSize.value,
+  }));
+
+  const animatedDigitContainerStyle = useAnimatedStyle(() => ({
     width: metrics.digitWidth.value,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
   }));
 
   const animatedInputStyle = useAnimatedStyle(() => ({
     fontSize: metrics.fontSize.value,
-    width: metrics.digitWidth.value * Math.max(2, (isEditing ? editingValue : displayValue).length),
+    width:
+      metrics.digitWidth.value *
+      Math.max(2, (isEditing ? editingValue : displayValue).length),
   }));
 
   const animatedContainerStyle = useAnimatedStyle(() => ({
     width: Math.max(
       metrics.digitWidth.value * digits.length,
-      metrics.digitWidth.value * Math.max(2, (isEditing ? editingValue : displayValue).length)
+      metrics.digitWidth.value *
+        Math.max(2, (isEditing ? editingValue : displayValue).length),
     ),
   }));
 
   // Common text styles for both input and display
   const baseTextStyle = {
     fontFamily,
-    textAlign: 'center' as const,
-    textAlignVertical: 'center' as const,
+    textAlign: "center" as const,
+    textAlignVertical: "center" as const,
     includeFontPadding: false,
     color: customState.colors.text,
-    ...(Platform.OS === 'android' && {
+    ...(Platform.OS === "android" && {
       paddingTop: 0,
       paddingBottom: 0,
     }),
@@ -98,20 +112,20 @@ export const TimeSegment = memo(function TimeSegment({
           baseTextStyle,
           animatedInputStyle,
           {
-            position: 'absolute',
-            backgroundColor: 'transparent',
+            position: "absolute",
+            backgroundColor: "transparent",
             borderWidth: 0,
             opacity: isEditing ? 1 : 0,
-            pointerEvents: isEditing ? 'auto' : 'none',
-          }
+            pointerEvents: isEditing ? "auto" : "none",
+          },
         ]}
-        value={isEditing ? editingValue : ''}
+        value={isEditing ? editingValue : ""}
         placeholderTextColor={customState.colors.textSecondary}
         onChangeText={handleSegmentChange}
         onBlur={handleSegmentSubmit}
         onSubmitEditing={handleSegmentSubmit}
         onFocus={() => {
-          if (!isEditing && timerState.status !== 'running') {
+          if (!isEditing && timerState.status !== "running") {
             handleSegmentPress(segment);
           }
         }}
@@ -120,31 +134,27 @@ export const TimeSegment = memo(function TimeSegment({
         autoFocus={isEditing}
         returnKeyType="done"
         underlineColorAndroid="transparent"
-        editable={timerState.status !== 'running'}
+        editable={timerState.status !== "running"}
       />
 
       {/* Display text */}
       <TouchableOpacity
         onPress={() => handleSegmentPress(segment)}
-        disabled={editingSegment !== null || timerState.status === 'running'}
+        disabled={editingSegment !== null || timerState.status === "running"}
         style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
           opacity: isEditing ? 0 : 1,
-          pointerEvents: isEditing ? 'none' : 'auto',
+          pointerEvents: isEditing ? "none" : "auto",
         }}
       >
         {digits.map((digit, index) => (
-          <AnimatedText
-            key={index}
-            style={[
-              baseTextStyle,
-              animatedTextStyle,
-            ]}
-          >
-            {digit}
-          </AnimatedText>
+          <Animated.View key={index} style={animatedDigitContainerStyle}>
+            <AnimatedText style={[baseTextStyle, animatedTextStyle]}>
+              {digit}
+            </AnimatedText>
+          </Animated.View>
         ))}
       </TouchableOpacity>
     </Animated.View>

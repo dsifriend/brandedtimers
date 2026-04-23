@@ -51,7 +51,7 @@ export function Header() {
         alignItems: "center",
       }}
     >
-      {!splitHeading && imageBase64 && image}
+      {!splitHeading && !!imageBase64 ? image : null}
       <View
         style={{
           flexDirection: "row",
@@ -82,7 +82,7 @@ export function Header() {
         </View>
 
         {/* Center column - only when split */}
-        {splitHeading && (
+        {!!splitHeading ? (
           <View
             style={{
               alignItems: "center",
@@ -91,10 +91,10 @@ export function Header() {
           >
             {image}
           </View>
-        )}
+        ) : null}
 
         {/* Right column - only when split */}
-        {splitHeading && mainHeadingRight && (
+        {!!splitHeading && !!mainHeadingRight ? (
           <View
             style={{
               flex: 1,
@@ -115,10 +115,10 @@ export function Header() {
               {mainHeadingRight}
             </Text>
           </View>
-        )}
+        ) : null}
       </View>
       {/* Subheading */}
-      {subheading && (
+      {!!subheading ? (
         <Text
           style={{
             fontSize: 24,
@@ -130,9 +130,9 @@ export function Header() {
         >
           {subheading}
         </Text>
-      )}
+      ) : null}
       {/* Queue Label - Third level heading */}
-      {isQueueActive && queueLabel && (
+      {isQueueActive && !!queueLabel ? (
         <Text
           style={{
             fontSize: 18,
@@ -145,7 +145,7 @@ export function Header() {
         >
           {queueLabel}
         </Text>
-      )}
+      ) : null}
     </View>
   );
 }
