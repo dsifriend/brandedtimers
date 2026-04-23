@@ -662,7 +662,7 @@ export function CustomizationPanel({
               value={state.primaryHue}
               onValueChange={setPrimaryHue}
               onThumbPress={() => setBWPrimary(false)}
-              colorScheme={state.colorScheme}
+              colorScheme={state.colorScheme ?? undefined}
               saturationMultiplier={state.useBWPrimary ? 0 : 1}
               isAccent={false}
               style={{ flex: 1 }}
@@ -716,7 +716,7 @@ export function CustomizationPanel({
               value={state.secondaryHue}
               onValueChange={setSecondaryHue}
               onThumbPress={() => setBWSecondary(false)}
-              colorScheme={state.colorScheme}
+              colorScheme={state.colorScheme ?? undefined}
               saturationMultiplier={state.useBWSecondary ? 0 : 1}
               isAccent={true}
               style={{ flex: 1 }}
