@@ -102,7 +102,7 @@ export async function importTheme(
 ): Promise<void> {
   try {
     const result = await DocumentPicker.getDocumentAsync({
-      type: ["application/json", "text/plain", "*/*"],
+      type: ["application/json", "text/plain", ".tmtimer", "*/*"],
       copyToCacheDirectory: true,
     });
 
