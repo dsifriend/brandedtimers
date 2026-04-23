@@ -282,7 +282,9 @@ export function CustomizationPanel({
         );
 
         // Add data URI prefix to match template format
-        const dataUri = manipulated.base64 ? `${manipulated.base64}` : null;
+        const dataUri = manipulated.base64
+          ? `data:image/png;base64,${manipulated.base64}`
+          : null;
         setHeaderImage(dataUri);
         setCropModalVisible(false);
         setSelectedImageUri(null);
